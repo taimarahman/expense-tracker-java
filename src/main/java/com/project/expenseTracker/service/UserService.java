@@ -1,12 +1,13 @@
 package com.project.expenseTracker.service;
 
+import com.project.expenseTracker.dto.request.UserInfoRequest;
+import com.project.expenseTracker.dto.response.UserInfoResponse;
 import com.project.expenseTracker.model.Users;
-import org.springframework.stereotype.Service;
 
 
 public interface UserService {
-     Users register(Users user);
-     Users findUser(Users user);
+     void register(UserInfoRequest user);
+     UserInfoResponse authenticateLogin(Users user);
 
      boolean isUsernameExists(String username);
 
