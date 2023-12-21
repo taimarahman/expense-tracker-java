@@ -1,6 +1,7 @@
 package com.project.expenseTracker.dto.request;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class UserInfoRequest {
@@ -10,4 +11,5 @@ public class UserInfoRequest {
     private String firstname;
     private String lastname;
     private String profession;
+    private MultipartFile profileImage;
 }

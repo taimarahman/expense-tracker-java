@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -62,5 +65,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isUserEmailExists(String email) {
         return userRepo.existsByEmail(email);
+    }
+
+    @Override
+    public String updateUserProfile(String username, UserInfoRequest userInfo) throws IOException {
+        Users user = userRepo.findUsersByUsername(username);
+
+        if(user != null && !userInfo.getProfileImage().isEmpty()){
+            String filePath = "/static/profile-images/" + username + "_profile.jpg";
+            File destination = new File(filePath);
+            userInfo.getProfileImage().transferTo(destination);
+
+            user.getUserProfileInfo().setProfileImageUrl(filePath);
+            userRepo.save(user);
+        }
+        return null;
     }
 }

@@ -2,9 +2,13 @@ package com.project.expenseTracker.model;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Users {
 
@@ -20,17 +24,11 @@ public class Users {
     @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
     private UserProfileInfo userProfileInfo;
 
-    public Users() {}
 
     public Users(String username, String email) {
         this.username = username;
         this.email = email;
         this.password = password;
     }
-    public Users(String username, String email, String password, UserProfileInfo userProfileInfo) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.userProfileInfo = userProfileInfo;
-    }
+
 }

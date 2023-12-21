@@ -4,15 +4,13 @@ import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.request.UserInfoRequest;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.UserInfoResponse;
+import com.project.expenseTracker.model.UserProfileInfo;
 import com.project.expenseTracker.model.Users;
 import com.project.expenseTracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(WebAPIUrlConstants.USER_API)
@@ -49,6 +47,17 @@ public class UserController {
             } else {
                 return ResponseHandler.generateResponse(null, "Login Failure! Username or Password incorrect", HttpStatus.BAD_REQUEST);
             }
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping( value = WebAPIUrlConstants.USER_PROFILE_UPDATE_API, produces = "application/json")
+    public ResponseEntity<Object> updateProfile(@PathVariable String username, @RequestBody UserInfoRequest userInfo){
+        try{
+            String successMsg = userService.updateUserProfile(username, userInfo);
+            return ResponseHandler.generateResponse("User Profile Updated Successfully", HttpStatus.OK);
         }catch(Exception e){
             e.printStackTrace();
             return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);

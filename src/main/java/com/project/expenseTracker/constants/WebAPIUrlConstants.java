@@ -8,6 +8,7 @@ public class WebAPIUrlConstants {
     public static final String USER_API = BASE_API_URL + "/user";
     public static final String USER_REGISTER_API = "/register";
     public static final String USER_LOGIN_API = "/login";
+    public static final String USER_PROFILE_UPDATE_API = "/{username}/update";
 
     // Expense-related APIs
     public static final String EXPENSE_API = BASE_API_URL + "/expense";
