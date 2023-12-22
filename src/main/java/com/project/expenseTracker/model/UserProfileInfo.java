@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,19 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 public class UserProfileInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userProfileId;
-    private String firstname;
-    private String lastname;
+    private String firstName;
+    private String lastName;
     private String profession;
     private String profileImageUrl;
 
-    public UserProfileInfo(String firstname, String lastname, String profession) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.profession = profession;
+    public UserProfileInfo(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
 }

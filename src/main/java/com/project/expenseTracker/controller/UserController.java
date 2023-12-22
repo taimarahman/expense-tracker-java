@@ -1,21 +1,28 @@
 package com.project.expenseTracker.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.request.UserInfoRequest;
+import com.project.expenseTracker.dto.request.UserProfileRequest;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.UserInfoResponse;
-import com.project.expenseTracker.model.UserProfileInfo;
 import com.project.expenseTracker.model.Users;
 import com.project.expenseTracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(WebAPIUrlConstants.USER_API)
 public class UserController {
 
+    private final ObjectMapper objectMapper;
+
+    public UserController(){
+        this.objectMapper = new ObjectMapper();
+    }
     @Autowired
     UserService userService;
     @PostMapping(WebAPIUrlConstants.USER_REGISTER_API)
@@ -53,11 +60,13 @@ public class UserController {
         }
     }
 
-    @PostMapping( value = WebAPIUrlConstants.USER_PROFILE_UPDATE_API, produces = "application/json")
-    public ResponseEntity<Object> updateProfile(@PathVariable String username, @RequestBody UserInfoRequest userInfo){
+    @PostMapping( value = WebAPIUrlConstants.USER_PROFILE_UPDATE_API, consumes={"multipart/form-data"}, produces = "application/json")
+    public ResponseEntity<Object> updateProfile(@PathVariable String username, @RequestParam("userProfileInfo") String userProfileInfo, @RequestParam MultipartFile profileImage){
         try{
-            String successMsg = userService.updateUserProfile(username, userInfo);
-            return ResponseHandler.generateResponse("User Profile Updated Successfully", HttpStatus.OK);
+            UserProfileRequest userInfo = objectMapper.readValue(userProfileInfo, UserProfileRequest.class);
+            String successMsg = userService.updateUserProfile(username, profileImage, userInfo);
+//            String successMsg = userService.updateUserProfile(username, userInfo);
+            return ResponseHandler.generateResponse("successMsg", HttpStatus.OK);
         }catch(Exception e){
             e.printStackTrace();
             return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);

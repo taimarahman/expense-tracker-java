@@ -1,6 +1,7 @@
 package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.dto.request.UserInfoRequest;
+import com.project.expenseTracker.dto.request.UserProfileRequest;
 import com.project.expenseTracker.dto.response.UserInfoResponse;
 import com.project.expenseTracker.model.UserProfileInfo;
 import com.project.expenseTracker.model.Users;
@@ -9,9 +10,12 @@ import com.project.expenseTracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,7 +32,7 @@ public class UserServiceImpl implements UserService {
             String encryptedPass = passwordEncoder.encode(user.getPassword());
             newUser.setPassword(encryptedPass);
 
-            UserProfileInfo newUserProfile = new UserProfileInfo(user.getFirstname(), user.getLastname(), user.getProfession());
+            UserProfileInfo newUserProfile = new UserProfileInfo(user.getFirstName(), user.getLastName());
             newUser.setUserProfileInfo(newUserProfile);
 
             userRepo.save(newUser);
@@ -48,8 +52,8 @@ public class UserServiceImpl implements UserService {
                 return UserInfoResponse.builder()
                         .username(foundUser.getUsername())
                         .email(foundUser.getEmail())
-                        .firstname(foundUserProfile.getFirstname())
-                        .lastname(foundUserProfile.getLastname())
+                        .firstName(foundUserProfile.getFirstName())
+                        .lastName(foundUserProfile.getLastName())
                         .profession(foundUserProfile.getProfession())
                         .build();
             }
@@ -68,16 +72,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String updateUserProfile(String username, UserInfoRequest userInfo) throws IOException {
+    public String updateUserProfile(String username, MultipartFile profileImage, UserProfileRequest userInfo) throws IOException {
         Users user = userRepo.findUsersByUsername(username);
 
-        if(user != null && !userInfo.getProfileImage().isEmpty()){
-            String filePath = "/static/profile-images/" + username + "_profile.jpg";
-            File destination = new File(filePath);
-            userInfo.getProfileImage().transferTo(destination);
+        if(user != null && !profileImage.isEmpty()){
+            String originalFilename = profileImage.getOriginalFilename();
+            String fileExtension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
+            String imagePath = username + "_profile" + fileExtension;
+            Path filePath = Paths.get("src/main/resources/static/profile-images/" + imagePath);
+            Files.write(filePath, profileImage.getBytes());
 
-            user.getUserProfileInfo().setProfileImageUrl(filePath);
+            UserProfileInfo userProfileInfo = UserProfileInfo.builder()
+                    .userProfileId(user.getUserProfileInfo().getUserProfileId())
+                            .firstName(userInfo.getFirstName())
+                                    .lastName(userInfo.getLastName())
+                                            .profession(userInfo.getProfession())
+                                                    .profileImageUrl("profile-images/" +imagePath)
+                                                            .build();
+
+//            user.getUserProfileInfo().setFirstName(userInfo.getFirstName());
+//            user.getUserProfileInfo().setLastName(userInfo.getLastName());
+//            user.getUserProfileInfo().setProfession(userInfo.getProfession());
+//            user.getUserProfileInfo().setProfileImageUrl("profile-images/" +imagePath);
+            user.setUserProfileInfo(userProfileInfo);
             userRepo.save(user);
+
+            return "User Profile Updated Successfully";
         }
         return null;
     }

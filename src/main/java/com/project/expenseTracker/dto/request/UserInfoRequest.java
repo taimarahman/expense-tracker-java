@@ -8,8 +8,7 @@ public class UserInfoRequest {
     private String username;
     private String email;
     private String password;
-    private String firstname;
-    private String lastname;
+    private String firstName;
+    private String lastName;
     private String profession;
-    private MultipartFile profileImage;
 }
