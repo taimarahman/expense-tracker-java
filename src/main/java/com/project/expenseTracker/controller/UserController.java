@@ -1,6 +1,7 @@
 package com.project.expenseTracker.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.request.UserInfoRequest;
 import com.project.expenseTracker.dto.request.UserProfileRequest;
@@ -47,10 +48,9 @@ public class UserController {
     @PostMapping( value=WebAPIUrlConstants.USER_LOGIN_API, produces="application/json" )
     public ResponseEntity<Object> login(@RequestBody Users user){
         try{
-            UserInfoResponse loggedinUser = userService.authenticateLogin(user);
-            System.out.println(loggedinUser);
-            if(loggedinUser != null){
-                return ResponseHandler.generateResponse(loggedinUser, "User login successfully", HttpStatus.OK);
+            Users loggedUser = userService.authenticateLogin(user);
+            if(loggedUser != null){
+                return ResponseHandler.generateResponse("User login successfully", HttpStatus.OK);
             } else {
                 return ResponseHandler.generateResponse(null, "Login Failure! Username or Password incorrect", HttpStatus.BAD_REQUEST);
             }
@@ -65,8 +65,22 @@ public class UserController {
         try{
             UserProfileRequest userInfo = objectMapper.readValue(userProfileInfo, UserProfileRequest.class);
             String successMsg = userService.updateUserProfile(username, profileImage, userInfo);
-//            String successMsg = userService.updateUserProfile(username, userInfo);
             return ResponseHandler.generateResponse("successMsg", HttpStatus.OK);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = WebAPIUrlConstants.USER_PROFILE_INFO_API, produces = "application/json")
+    public ResponseEntity<Object> getUserProfileInfo(@PathVariable String username){
+        try{
+            UserInfoResponse userInfo = userService.getUserProfileInfo(username);
+            if(userInfo != null){
+                return ResponseHandler.generateResponse(userInfo, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+            } else {
+                return ResponseHandler.generateResponse(null, "Login Failure! Username or Password incorrect", HttpStatus.BAD_REQUEST);
+            }
         }catch(Exception e){
             e.printStackTrace();
             return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);

@@ -11,12 +11,12 @@ import java.io.IOException;
 
 public interface UserService {
      void register(UserInfoRequest user);
-     UserInfoResponse authenticateLogin(Users user);
+     Users authenticateLogin(Users user);
+     UserInfoResponse getUserProfileInfo(String username);
 
      boolean isUsernameExists(String username);
 
      boolean isUserEmailExists(String email);
 
      String updateUserProfile(String username, MultipartFile profileImage, UserProfileRequest userInfo) throws IOException;
-//     String updateUserProfile(String username, UserProfileUpdateRequest userInfo) throws IOException;
 }

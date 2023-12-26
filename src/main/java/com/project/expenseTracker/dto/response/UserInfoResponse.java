@@ -1,9 +1,13 @@
 package com.project.expenseTracker.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class UserInfoResponse {
     private String username;
@@ -11,12 +15,6 @@ public class UserInfoResponse {
     private String firstName;
     private String lastName;
     private String profession;
+    private String profileImageUrl;
 
-    public UserInfoResponse(String username, String email, String firstname, String lastname, String profession) {
-        this.username = username;
-        this.email = email;
-        this.firstName = firstname;
-        this.lastName = lastname;
-        this.profession = profession;
-    }
 }

@@ -43,20 +43,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoResponse authenticateLogin(Users user) {
+    public Users authenticateLogin(Users user) {
         Users foundUser = userRepo.findUsersByUsername(user.getUsername());
         if(foundUser != null){
             if(passwordEncoder.matches(user.getPassword(), foundUser.getPassword())){
-                UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
-
-                return UserInfoResponse.builder()
-                        .username(foundUser.getUsername())
-                        .email(foundUser.getEmail())
-                        .firstName(foundUserProfile.getFirstName())
-                        .lastName(foundUserProfile.getLastName())
-                        .profession(foundUserProfile.getProfession())
-                        .build();
+                return foundUser;
             }
+        }
+        return null;
+    }
+    @Override
+    public UserInfoResponse getUserProfileInfo(String username) {
+        Users foundUser = userRepo.findUsersByUsername(username);
+        if(foundUser != null){
+            UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
+
+            return UserInfoResponse.builder()
+                    .username(foundUser.getUsername())
+                    .email(foundUser.getEmail())
+                    .firstName(foundUserProfile.getFirstName())
+                    .lastName(foundUserProfile.getLastName())
+                    .profession(foundUserProfile.getProfession())
+                    .profileImageUrl(foundUserProfile.getProfileImageUrl())
+                    .build();
         }
         return null;
     }
@@ -90,10 +99,6 @@ public class UserServiceImpl implements UserService {
                                                     .profileImageUrl("profile-images/" +imagePath)
                                                             .build();
 
-//            user.getUserProfileInfo().setFirstName(userInfo.getFirstName());
-//            user.getUserProfileInfo().setLastName(userInfo.getLastName());
-//            user.getUserProfileInfo().setProfession(userInfo.getProfession());
-//            user.getUserProfileInfo().setProfileImageUrl("profile-images/" +imagePath);
             user.setUserProfileInfo(userProfileInfo);
             userRepo.save(user);
 
