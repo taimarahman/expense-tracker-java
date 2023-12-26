@@ -9,6 +9,7 @@ import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.UserInfoResponse;
 import com.project.expenseTracker.model.Users;
 import com.project.expenseTracker.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,10 +47,11 @@ public class UserController {
     }
 
     @PostMapping( value=WebAPIUrlConstants.USER_LOGIN_API, produces="application/json" )
-    public ResponseEntity<Object> login(@RequestBody Users user){
+    public ResponseEntity<Object> login(@RequestBody Users user, HttpSession session){
         try{
             Users loggedUser = userService.authenticateLogin(user);
             if(loggedUser != null){
+                session.setAttribute("currentUser", loggedUser.getUsername());
                 return ResponseHandler.generateResponse("User login successfully", HttpStatus.OK);
             } else {
                 return ResponseHandler.generateResponse(null, "Login Failure! Username or Password incorrect", HttpStatus.BAD_REQUEST);
@@ -61,7 +63,7 @@ public class UserController {
     }
 
     @PostMapping( value = WebAPIUrlConstants.USER_PROFILE_UPDATE_API, consumes={"multipart/form-data"}, produces = "application/json")
-    public ResponseEntity<Object> updateProfile(@PathVariable String username, @RequestParam("userProfileInfo") String userProfileInfo, @RequestParam MultipartFile profileImage){
+    public ResponseEntity<Object> updateUserProfile(@PathVariable String username, @RequestParam("userProfileInfo") String userProfileInfo, @RequestParam MultipartFile profileImage){
         try{
             UserProfileRequest userInfo = objectMapper.readValue(userProfileInfo, UserProfileRequest.class);
             String successMsg = userService.updateUserProfile(username, profileImage, userInfo);
@@ -73,13 +75,17 @@ public class UserController {
     }
 
     @GetMapping(value = WebAPIUrlConstants.USER_PROFILE_INFO_API, produces = "application/json")
-    public ResponseEntity<Object> getUserProfileInfo(@PathVariable String username){
+    public ResponseEntity<Object> getUserProfileInfo(@PathVariable String username, HttpSession session){
         try{
-            UserInfoResponse userInfo = userService.getUserProfileInfo(username);
-            if(userInfo != null){
-                return ResponseHandler.generateResponse(userInfo, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+            if(session.getAttribute("currentUser").equals(username)){
+                UserInfoResponse userInfo = userService.getUserProfileInfo(username);
+                if(userInfo != null){
+                    return ResponseHandler.generateResponse(userInfo, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+                } else {
+                    return ResponseHandler.generateResponse(null, ResponseMessageConstants.DATA_NOT_FOUND, HttpStatus.BAD_REQUEST);
+                }
             } else {
-                return ResponseHandler.generateResponse(null, "Login Failure! Username or Password incorrect", HttpStatus.BAD_REQUEST);
+                return  ResponseHandler.generateResponse(null, ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.FORBIDDEN);
             }
         }catch(Exception e){
             e.printStackTrace();
