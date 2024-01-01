@@ -44,29 +44,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Users authenticateLogin(Users user) {
-        Users foundUser = userRepo.findUsersByUsername(user.getUsername());
-        if(foundUser != null){
-            if(passwordEncoder.matches(user.getPassword(), foundUser.getPassword())){
-                return foundUser;
+        try {
+            Users foundUser = userRepo.findUsersByUsername(user.getUsername());
+            if(foundUser != null){
+                if(passwordEncoder.matches(user.getPassword(), foundUser.getPassword())){
+                    return foundUser;
+                }
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+
         return null;
     }
     @Override
     public UserInfoResponse getUserProfileInfo(String username) {
-        Users foundUser = userRepo.findUsersByUsername(username);
-        if(foundUser != null){
-            UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
+        try {
+            Users foundUser = userRepo.findUsersByUsername(username);
+            if(foundUser != null){
+                UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
 
-            return UserInfoResponse.builder()
-                    .username(foundUser.getUsername())
-                    .email(foundUser.getEmail())
-                    .firstName(foundUserProfile.getFirstName())
-                    .lastName(foundUserProfile.getLastName())
-                    .profession(foundUserProfile.getProfession())
-                    .profileImageUrl(foundUserProfile.getProfileImageUrl())
-                    .build();
+                return UserInfoResponse.builder()
+                        .username(foundUser.getUsername())
+                        .email(foundUser.getEmail())
+                        .firstName(foundUserProfile.getFirstName())
+                        .lastName(foundUserProfile.getLastName())
+                        .profession(foundUserProfile.getProfession())
+                        .profileImageUrl(foundUserProfile.getProfileImageUrl())
+                        .build();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+
         return null;
     }
 
@@ -82,28 +92,33 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String updateUserProfile(String username, MultipartFile profileImage, UserProfileRequest userInfo) throws IOException {
-        Users user = userRepo.findUsersByUsername(username);
+        try {
+            Users user = userRepo.findUsersByUsername(username);
 
-        if(user != null && !profileImage.isEmpty()){
-            String originalFilename = profileImage.getOriginalFilename();
-            String fileExtension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
-            String imagePath = username + "_profile" + fileExtension;
-            Path filePath = Paths.get("src/main/resources/static/profile-images/" + imagePath);
-            Files.write(filePath, profileImage.getBytes());
+            if(user != null && !profileImage.isEmpty()){
+                String originalFilename = profileImage.getOriginalFilename();
+                String fileExtension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
+                String imagePath = username + "_profile" + fileExtension;
+                Path filePath = Paths.get("src/main/resources/static/profile-images/" + imagePath);
+                Files.write(filePath, profileImage.getBytes());
 
-            UserProfileInfo userProfileInfo = UserProfileInfo.builder()
-                    .userProfileId(user.getUserProfileInfo().getUserProfileId())
-                            .firstName(userInfo.getFirstName())
-                                    .lastName(userInfo.getLastName())
-                                            .profession(userInfo.getProfession())
-                                                    .profileImageUrl("profile-images/" +imagePath)
-                                                            .build();
+                UserProfileInfo userProfileInfo = UserProfileInfo.builder()
+                        .userProfileId(user.getUserProfileInfo().getUserProfileId())
+                        .firstName(userInfo.getFirstName())
+                        .lastName(userInfo.getLastName())
+                        .profession(userInfo.getProfession())
+                        .profileImageUrl("profile-images/" +imagePath)
+                        .build();
 
-            user.setUserProfileInfo(userProfileInfo);
-            userRepo.save(user);
+                user.setUserProfileInfo(userProfileInfo);
+                userRepo.save(user);
 
-            return "User Profile Updated Successfully";
+                return "User Profile Updated Successfully";
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+
         return null;
     }
 }
