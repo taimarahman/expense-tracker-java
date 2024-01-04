@@ -20,7 +20,8 @@ public class Users {
     @Column(unique = true)
     private String email;
     private String password;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
     private UserProfileInfo userProfileInfo;
 
@@ -28,7 +29,6 @@ public class Users {
     public Users(String username, String email) {
         this.username = username;
         this.email = email;
-        this.password = password;
     }
 
 }

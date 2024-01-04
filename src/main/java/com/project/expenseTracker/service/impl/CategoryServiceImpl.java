@@ -34,7 +34,6 @@ public class CategoryServiceImpl implements CategoryService {
         }catch (Exception ex){
             ex.printStackTrace();
         }
-
     }
 
     @Override
@@ -81,7 +80,7 @@ public class CategoryServiceImpl implements CategoryService {
                     subcategoryList.add(CategoryResponse.builder()
                     .categoryName(sub.getCategoryName())
                     .description(sub.getDescription())
-                            .build()
+                    .build()
                     );
                 }
                 return CategoryResponse.builder()
