@@ -1,6 +1,8 @@
 package com.project.expenseTracker.service.impl;
 
+import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.dto.request.CategoryRequest;
+import com.project.expenseTracker.dto.response.CategoryResponse;
 import com.project.expenseTracker.model.Category;
 import com.project.expenseTracker.repository.CategoryRepository;
 import com.project.expenseTracker.service.CategoryService;
@@ -8,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,8 +29,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void addCategory(CategoryRequest categoryReqData) {
         try{
-//            Category categoryInfo = convertToEntity(categoryReqData);
-//            System.out.println(categoryInfo);
             Category category = new Category(categoryReqData.getCategoryName(), categoryReqData.getDescription());
             categoryRepo.save(category);
         }catch (Exception ex){
@@ -43,15 +44,20 @@ public class CategoryServiceImpl implements CategoryService {
 
             if(category.isPresent()){
                 Category parentCategory = category.get();
+                if (parentCategory.getParentId() == null){
+                    for (CategoryRequest sub: reqData
+                    ) {
+                        Category subCategory = new Category(sub.getCategoryName(), sub.getDescription(), categoryId);
+                        categoryRepo.save(subCategory);
+                    }
 
-                for (CategoryRequest sub: reqData
-                     ) {
-                    Category subCategory = new Category(sub.getCategoryName(), sub.getDescription(), parentCategory);
-                    parentCategory.getSubcategories().add(subCategory);
+                    return ResponseMessageConstants.SAVE_SUCCESS;
+
+                } else {
+                    return "Invalid Category to add subcategory";
                 }
-
-                categoryRepo.save(parentCategory);
-
+            } else {
+                return "Invalid Category to add subcategory";
             }
 
         } catch (Exception ex) {
@@ -61,8 +67,33 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Optional<Category> getIdWiseCategoryDetails(String categoryId) {
-        return categoryRepo.findById(Integer.valueOf(categoryId));
+    public CategoryResponse getIdWiseCategoryDetails(Integer categoryId) {
+        try{
+            Optional<Category> category = categoryRepo.findById(categoryId);
+            if(category.isPresent()){
+                Category parentCategory = category.get();
+
+                List<Category> subcategories = categoryRepo.findByParentId(categoryId);
+                List<CategoryResponse> subcategoryList = new ArrayList<>();
+                for (Category sub: subcategories
+                ) {
+                    CategoryResponse subCategory = new CategoryResponse();
+                    subcategoryList.add(CategoryResponse.builder()
+                    .categoryName(sub.getCategoryName())
+                    .description(sub.getDescription())
+                            .build()
+                    );
+                }
+                return CategoryResponse.builder()
+                        .categoryName(parentCategory.getCategoryName())
+                        .description(parentCategory.getDescription())
+                        .subcategories(subcategoryList)
+                        .build();
+            }
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     private Category convertToEntity(CategoryRequest categoryReqData) {

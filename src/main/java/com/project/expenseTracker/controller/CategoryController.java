@@ -3,8 +3,8 @@ package com.project.expenseTracker.controller;
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.request.CategoryRequest;
+import com.project.expenseTracker.dto.response.CategoryResponse;
 import com.project.expenseTracker.dto.response.ResponseHandler;
-import com.project.expenseTracker.model.Category;
 import com.project.expenseTracker.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = WebAPIUrlConstants.CATEGORY_API)
@@ -39,7 +38,7 @@ public class CategoryController {
     public ResponseEntity<Object> addSubcategory(@PathVariable Integer categoryId, @RequestBody List<CategoryRequest> reqData) {
         try {
             String successMsg = categoryService.addSubcategory(categoryId, reqData);
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SAVE_SUCCESS, HttpStatus.CREATED);
+            return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -50,9 +49,9 @@ public class CategoryController {
 
 
     @GetMapping(value = WebAPIUrlConstants.CATEGORY_ID_WISE_DETAILS_API, produces = "application/json")
-    public ResponseEntity<Object> getIdWiseCategoryList(@PathVariable String categoryId) {
+    public ResponseEntity<Object> getIdWiseCategoryList(@PathVariable Integer categoryId) {
         try {
-            Optional<Category> category = categoryService.getIdWiseCategoryDetails(categoryId);
+            CategoryResponse category = categoryService.getIdWiseCategoryDetails(categoryId);
             return ResponseHandler.generateResponse(category, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
 
         } catch (Exception ex) {

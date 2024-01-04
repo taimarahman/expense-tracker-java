@@ -26,21 +26,17 @@ public class Category {
     @Column(nullable = false)
     private String description = "";
 
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private Category parent;
+    private Integer parentId;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent")
-    private List<Category> subcategories = new ArrayList<>();
 
     public Category(String categoryName, String description) {
         this.categoryName = categoryName;
         this.description = description;
     }
 
-    public Category(String categoryName, String description, Category parent) {
+    public Category(String categoryName, String description, Integer parentId) {
         this.categoryName = categoryName;
         this.description = description;
-        this.parent = parent;
+        this.parentId = parentId;
     }
 }
