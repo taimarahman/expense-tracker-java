@@ -52,8 +52,10 @@ public class CategoryController {
     public ResponseEntity<Object> getIdWiseCategoryList(@PathVariable Integer categoryId) {
         try {
             CategoryResponse category = categoryService.getIdWiseCategoryDetails(categoryId);
-            return ResponseHandler.generateResponse(category, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
-
+            if(category != null){
+                return ResponseHandler.generateResponse(category, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+            } else
+                return ResponseHandler.generateResponse(null, ResponseMessageConstants.DATA_NOT_FOUND, HttpStatus.OK);
         } catch (Exception ex) {
             ex.printStackTrace();
             return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
@@ -61,4 +63,18 @@ public class CategoryController {
         }
     }
 
+    @GetMapping(value = WebAPIUrlConstants.CATEGORY_ALL_DETAILS_API, produces = "application/json")
+    public ResponseEntity<Object> getCategoryDetails() {
+        try {
+            List<CategoryResponse> allCategory = categoryService.getAllCategory();
+            if(allCategory.size() > 0){
+                return ResponseHandler.generateResponse(allCategory, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+            } else
+                return ResponseHandler.generateResponse(null, ResponseMessageConstants.DATA_NOT_FOUND, HttpStatus.OK);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+        }
+    }
 }

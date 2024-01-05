@@ -95,7 +95,34 @@ public class CategoryServiceImpl implements CategoryService {
         return null;
     }
 
-    private Category convertToEntity(CategoryRequest categoryReqData) {
-        return modelMapper.map(categoryReqData, Category.class);
+    @Override
+    public List<CategoryResponse> getAllCategory() {
+        try {
+            List<CategoryResponse> allCategories = new ArrayList<>();
+            List<Category> categories = categoryRepo.findAllWhereParentIdIsNull();
+            if(categories.size() > 0){
+                for (Category c: categories) {
+                    CategoryResponse cr = new CategoryResponse(c.getCategoryName(), c.getDescription());
+                    List<Category> subcategories = categoryRepo.findByParentId(c.getCategoryId());
+
+                    if(subcategories.size() > 0) {
+                        for (Category sub :
+                                subcategories) {
+                            cr.getSubcategories().add(CategoryResponse.builder()
+                                    .categoryName(sub.getCategoryName())
+                                    .description(sub.getDescription())
+                                    .build());
+                        }
+
+                    }
+                    allCategories.add(cr);
+                }
+                return allCategories;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
+
 }

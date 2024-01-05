@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -15,5 +16,10 @@ import java.util.List;
 public class CategoryResponse {
     private String categoryName;
     private String description;
-    private List<CategoryResponse> subcategories;
+    private List<CategoryResponse> subcategories = new ArrayList<>();
+
+    public CategoryResponse(String categoryName, String description) {
+        this.categoryName = categoryName;
+        this.description = description;
+    }
 }

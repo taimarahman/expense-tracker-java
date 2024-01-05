@@ -11,4 +11,6 @@ public interface CategoryService {
     String addSubcategory(Integer categoryId, List<CategoryRequest> reqData);
 
     CategoryResponse getIdWiseCategoryDetails(Integer categoryId);
+
+    List<CategoryResponse> getAllCategory();
 }
