@@ -51,6 +51,7 @@ public class UserController {
         try{
             Users loggedUser = userService.authenticateLogin(user);
             if(loggedUser != null){
+                session.setAttribute("currentUserId", loggedUser.getUserId());
                 session.setAttribute("currentUser", loggedUser.getUsername());
                 return ResponseHandler.generateResponse("User login successfully", HttpStatus.OK);
             } else {

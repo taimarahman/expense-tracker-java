@@ -5,6 +5,7 @@ import com.project.expenseTracker.dto.request.CategoryRequest;
 import com.project.expenseTracker.dto.response.CategoryResponse;
 import com.project.expenseTracker.model.Category;
 import com.project.expenseTracker.repository.CategoryRepository;
+import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.CategoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepository categoryRepo;
     @Autowired
+    private UserRepository userRepo;
+    @Autowired
     private ModelMapper modelMapper;
 
     public CategoryServiceImpl(CategoryRepository categoryRepo, ModelMapper modelMapper) {
@@ -27,9 +30,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void addCategory(CategoryRequest categoryReqData) {
+    public void addCategory(CategoryRequest categoryReqData, Long currentUserId) {
         try{
-            Category category = new Category(categoryReqData.getCategoryName(), categoryReqData.getDescription());
+            Category category = new Category(categoryReqData.getCategoryName(), categoryReqData.getDescription(), currentUserId);
             categoryRepo.save(category);
         }catch (Exception ex){
             ex.printStackTrace();
@@ -37,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public String addSubcategory(Integer categoryId, List<CategoryRequest> reqData) {
+    public String addSubcategory(Long categoryId, List<CategoryRequest> reqData, Long currentUserId) {
         try {
             Optional<Category> category = categoryRepo.findById(categoryId);
 
@@ -46,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
                 if (parentCategory.getParentId() == null){
                     for (CategoryRequest sub: reqData
                     ) {
-                        Category subCategory = new Category(sub.getCategoryName(), sub.getDescription(), categoryId);
+                        Category subCategory = new Category(sub.getCategoryName(), sub.getDescription(), categoryId, currentUserId);
                         categoryRepo.save(subCategory);
                     }
 
@@ -66,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse getIdWiseCategoryDetails(Integer categoryId) {
+    public CategoryResponse getIdWiseCategoryDetails(Long categoryId) {
         try{
             Optional<Category> category = categoryRepo.findById(categoryId);
             if(category.isPresent()){
@@ -96,14 +99,28 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> getAllCategory() {
+    public List<CategoryResponse> getAllCategory(Long currentUserId) {
         try {
             List<CategoryResponse> allCategories = new ArrayList<>();
-            List<Category> categories = categoryRepo.findAllWhereParentIdIsNull();
+            List<Category> categories = new ArrayList<>();
+            Long adminId = userRepo.findIdByUsername("admin");
+
+            if(adminId.equals(currentUserId) ){
+                categories = categoryRepo.findByParentId(null);
+            } else {
+                categories = categoryRepo.findAllCategoryByUserId(currentUserId, adminId);
+            }
+
             if(categories.size() > 0){
                 for (Category c: categories) {
                     CategoryResponse cr = new CategoryResponse(c.getCategoryName(), c.getDescription());
-                    List<Category> subcategories = categoryRepo.findByParentId(c.getCategoryId());
+                    List<Category> subcategories = new ArrayList<>();
+
+                    if(adminId.equals(currentUserId) ){
+                        subcategories = categoryRepo.findByParentId(c.getCategoryId());
+                    } else {
+                        subcategories = categoryRepo.findByParentIdAndCreatedByIn(c.getCategoryId(), List.of(adminId,currentUserId));
+                    }
 
                     if(subcategories.size() > 0) {
                         for (Category sub :

@@ -6,9 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +15,7 @@ public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer categoryId;
+    private Long categoryId;
 
     @Column(nullable = false)
     private String categoryName;
@@ -26,7 +23,11 @@ public class Category {
     @Column(nullable = false)
     private String description = "";
 
-    private Integer parentId;
+    private Long parentId;
+
+    @Column(nullable = false)
+    private Long createdBy;
+
 
 
     public Category(String categoryName, String description) {
@@ -34,9 +35,18 @@ public class Category {
         this.description = description;
     }
 
-    public Category(String categoryName, String description, Integer parentId) {
+    public Category(String categoryName, String description, Long createdBy) {
+        this.categoryName = categoryName;
+        this.description = description;
+        this.createdBy = createdBy;
+    }
+
+    public Category(String categoryName, String description, Long parentId, Long createdBy) {
         this.categoryName = categoryName;
         this.description = description;
         this.parentId = parentId;
+        this.createdBy = createdBy;
     }
+
+
 }

@@ -6,11 +6,11 @@ import com.project.expenseTracker.dto.response.CategoryResponse;
 import java.util.List;
 
 public interface CategoryService {
-    void addCategory(CategoryRequest categoryReqData);
+    void addCategory(CategoryRequest categoryReqData, Long currentUserId);
 
-    String addSubcategory(Integer categoryId, List<CategoryRequest> reqData);
+    String addSubcategory(Long categoryId, List<CategoryRequest> reqData, Long currentUserId);
 
-    CategoryResponse getIdWiseCategoryDetails(Integer categoryId);
+    CategoryResponse getIdWiseCategoryDetails(Long categoryId);
 
-    List<CategoryResponse> getAllCategory();
+    List<CategoryResponse> getAllCategory(Long currentUserId);
 }
