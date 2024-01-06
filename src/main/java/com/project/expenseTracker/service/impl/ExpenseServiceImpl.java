@@ -51,4 +51,21 @@ public class ExpenseServiceImpl implements ExpenseService {
             ex.printStackTrace();
         }
     }
+
+    @Override
+    public Expense updateExpense(Expense reqData, Long currentUserId) {
+        try {
+            Optional<Expense> optionalExpense = expenseRepo.findById(reqData.getExpenseId());
+
+            if(optionalExpense.isPresent()){
+                Expense expense = optionalExpense.get();
+                if(expense.getUserId().equals(currentUserId)){
+                    expenseRepo.save(reqData);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

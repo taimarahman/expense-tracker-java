@@ -4,6 +4,7 @@ import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.request.ExpenseInfoRequest;
 import com.project.expenseTracker.dto.response.ResponseHandler;
+import com.project.expenseTracker.model.Expense;
 import com.project.expenseTracker.service.ExpenseService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,29 @@ public class ExpenseController {
             if(currentUserId != null){
                 expenseService.deleteExpense(id, currentUserId);
                 return ResponseHandler.generateResponse(ResponseMessageConstants.DELETE_SUCCESS, HttpStatus.OK);
+            } else
+                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+
+        }
+    }
+
+    @PostMapping(value = WebAPIUrlConstants.EXPENSE_UPDATE_API, produces = "application/json")
+    public ResponseEntity<Object> updateExpense(@RequestBody Expense reqData, HttpSession session) {
+        try {
+            Long currentUserId = (Long) session.getAttribute("currentUserId");
+
+            if(currentUserId != null){
+                Expense updatedExpense = expenseService.updateExpense(reqData, currentUserId);
+
+                if(updatedExpense != null){
+                    return ResponseHandler.generateResponse(updatedExpense, ResponseMessageConstants.UPDATE_SUCCESS, HttpStatus.OK);
+                } else
+                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
+
             } else
                 return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
 
