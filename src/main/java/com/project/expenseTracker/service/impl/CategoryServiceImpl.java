@@ -48,11 +48,8 @@ public class CategoryServiceImpl implements CategoryService {
             if(category.isPresent()){
                 Category parentCategory = category.get();
                 if (parentCategory.getParentId() == null){
-                    for (CategoryRequest sub: reqData
-                    ) {
-                        Category subCategory = new Category(sub.getCategoryName(), sub.getDescription(), categoryId, currentUserId);
-                        categoryRepo.save(subCategory);
-                    }
+                    reqData.stream().map(sub -> new Category(sub.getCategoryName(), sub.getDescription(), categoryId, currentUserId))
+                            .forEach(categoryRepo::save);
 
                     return ResponseMessageConstants.SAVE_SUCCESS;
 
@@ -122,14 +119,15 @@ public class CategoryServiceImpl implements CategoryService {
                     }
 
                     if(subcategories.size() > 0) {
-                        for (Category sub :
-                                subcategories) {
-                            cr.getSubcategories().add(CategoryResponse.builder()
-                                    .categoryName(sub.getCategoryName())
-                                    .description(sub.getDescription())
-                                    .build());
-                        }
 
+                        cr.getSubcategories().addAll(
+                                subcategories.stream()
+                                        .map(sub ->CategoryResponse.builder()
+                                                .categoryName(sub.getCategoryName())
+                                                .description(sub.getDescription())
+                                                .build())
+                                        .collect(Collectors.toList())
+                        );
                     }
                     allCategories.add(cr);
                 }
