@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -76,16 +77,14 @@ public class CategoryServiceImpl implements CategoryService {
                 Category parentCategory = category.get();
 
                 List<Category> subcategories = categoryRepo.findByParentId(categoryId);
-                List<CategoryResponse> subcategoryList = new ArrayList<>();
-                for (Category sub: subcategories
-                ) {
-                    CategoryResponse subCategory = new CategoryResponse();
-                    subcategoryList.add(CategoryResponse.builder()
-                    .categoryName(sub.getCategoryName())
-                    .description(sub.getDescription())
-                    .build()
-                    );
-                }
+
+                List<CategoryResponse> subcategoryList = subcategories.stream()
+                        .map(sub -> CategoryResponse.builder()
+                                .categoryName(sub.getCategoryName())
+                                .description(sub.getDescription())
+                                .build())
+                        .collect(Collectors.toList());
+
                 return CategoryResponse.builder()
                         .categoryName(parentCategory.getCategoryName())
                         .description(parentCategory.getDescription())

@@ -31,6 +31,8 @@ public class WebAPIUrlConstants {
     public static final String EXPENSE_UPDATE_API = "/update";
     public static final String EXPENSE_DELETE_API = "/delete/{id}";
     public static final String EXPENSE_LIST_API = "/list";
+    public static final String EXPENSE_MONTHLY_LIST_API = "/monthly-list/{month}/{year}";
+    public static final String EXPENSE_CURR_MONTHLY_LIST_API = "/monthly-list";
 
     // Report-related APIs
     public static final String REPORT_API = BASE_API_URL + "/report";

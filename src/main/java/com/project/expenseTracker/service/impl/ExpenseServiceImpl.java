@@ -8,6 +8,8 @@ import com.project.expenseTracker.service.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -66,6 +68,32 @@ public class ExpenseServiceImpl implements ExpenseService {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        return null;
+    }
+
+    @Override
+    public List<Expense> getExpenseList(Long currentUserId) {
+        try {
+            List<Expense> expenseList = new ArrayList<>();
+            expenseList = expenseRepo.findAllByUserId(currentUserId);
+
+            return expenseList;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public List<Expense> getMonthlyExpenseList(Long currentUserId, Integer reqMonth, Integer reqYear) {
+        try {
+            List<Expense> expenseList = new ArrayList<>();
+            expenseList = expenseRepo.findAllByUserIdAndMonth(currentUserId, reqMonth, reqYear);
+            return expenseList;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         return null;
     }
 }
