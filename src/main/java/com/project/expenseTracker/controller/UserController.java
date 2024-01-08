@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping(WebAPIUrlConstants.USER_API)
 public class UserController {
@@ -50,7 +52,7 @@ public class UserController {
     public ResponseEntity<Object> login(@RequestBody Users user, HttpSession session){
         try{
             Users loggedUser = userService.authenticateLogin(user);
-            if(loggedUser != null){
+            if(Objects.nonNull(loggedUser)){
                 session.setAttribute("currentUserId", loggedUser.getUserId());
                 session.setAttribute("currentUser", loggedUser.getUsername());
                 return ResponseHandler.generateResponse("User login successfully", HttpStatus.OK);
@@ -68,7 +70,11 @@ public class UserController {
         try{
             UserProfileRequest userInfo = objectMapper.readValue(userProfileInfo, UserProfileRequest.class);
             String successMsg = userService.updateUserProfile(username, profileImage, userInfo);
-            return ResponseHandler.generateResponse("successMsg", HttpStatus.OK);
+
+            if(Objects.nonNull(successMsg) && !successMsg.isEmpty()){
+                return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
+            } else
+                return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
         }catch(Exception e){
             e.printStackTrace();
             return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);

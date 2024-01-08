@@ -31,4 +31,12 @@ public class Income {
 
     @Column(nullable = false)
     private Long userId;
+
+    public Income(BigDecimal incomeAmount, String incomeSource, Integer month, Integer year, Long userId) {
+        this.incomeAmount = incomeAmount;
+        this.incomeSource = incomeSource;
+        this.month = month;
+        this.year = year;
+        this.userId = userId;
+    }
 }

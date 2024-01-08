@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(value = WebAPIUrlConstants.CATEGORY_API)
@@ -26,7 +27,7 @@ public class CategoryController {
     public ResponseEntity<Object> addCategory(@RequestBody CategoryRequest categoryReqData, HttpSession session){
         try{
             Long currentUserId = (Long) session.getAttribute("currentUserId");
-            if(currentUserId != null){
+            if(Objects.nonNull(currentUserId)){
                 categoryService.addCategory(categoryReqData, currentUserId);
                 return ResponseHandler.generateResponse(ResponseMessageConstants.SAVE_SUCCESS, HttpStatus.CREATED);
             } else {
@@ -44,9 +45,13 @@ public class CategoryController {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
 
-            if(currentUserId != null){
+            if(Objects.nonNull(currentUserId)){
                 String successMsg = categoryService.addSubcategory(categoryId, reqData, currentUserId);
-                return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
+
+                if(Objects.nonNull(successMsg) && !successMsg.isEmpty()){
+                    return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
+                } else
+                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
             } else {
                 return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
             }
@@ -61,7 +66,7 @@ public class CategoryController {
         try {
             CategoryResponse category = categoryService.getIdWiseCategoryDetails(categoryId);
 
-            if(category != null){
+            if(Objects.nonNull(category)){
                 return ResponseHandler.generateResponse(category, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
             } else
                 return ResponseHandler.generateResponse(null, ResponseMessageConstants.DATA_NOT_FOUND, HttpStatus.OK);
@@ -75,10 +80,10 @@ public class CategoryController {
     public ResponseEntity<Object> getCategoryDetails(HttpSession session) {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
-            if(currentUserId != null){
+            if(Objects.nonNull(currentUserId)){
                 List<CategoryResponse> allCategory = categoryService.getAllCategory(currentUserId);
 
-                if(allCategory.size() > 0){
+                if(Objects.nonNull(allCategory) && allCategory.size() > 0){
                     return ResponseHandler.generateResponse(allCategory, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
                 } else
                     return ResponseHandler.generateResponse(null, ResponseMessageConstants.DATA_NOT_FOUND, HttpStatus.OK);
