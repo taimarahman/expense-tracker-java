@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,12 +54,12 @@ public class CategoryServiceImpl implements CategoryService {
 
                     return ResponseMessageConstants.SAVE_SUCCESS;
 
-                } else {
+                } else
                     return "Invalid Category to add subcategory";
-                }
-            } else {
+
+            } else
                 return "Invalid Category to add subcategory";
-            }
+
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -98,7 +99,7 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryResponse> getAllCategory(Long currentUserId) {
         try {
             List<CategoryResponse> allCategories = new ArrayList<>();
-            List<Category> categories = new ArrayList<>();
+            List<Category> categories;
             Long adminId = userRepo.findIdByUsername("admin");
 
             if(adminId.equals(currentUserId) ){
@@ -110,7 +111,7 @@ public class CategoryServiceImpl implements CategoryService {
             if(categories.size() > 0){
                 for (Category c: categories) {
                     CategoryResponse cr = new CategoryResponse(c.getCategoryName(), c.getDescription());
-                    List<Category> subcategories = new ArrayList<>();
+                    List<Category> subcategories;
 
                     if(adminId.equals(currentUserId) ){
                         subcategories = categoryRepo.findByParentId(c.getCategoryId());

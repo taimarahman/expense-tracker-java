@@ -1,11 +1,11 @@
 package com.project.expenseTracker.dto.request;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class ExpenseInfoRequest {
-    private double amount;
+    private BigDecimal amount;
     private LocalDate date;
     private Long expenseCategory;
     private String shop;

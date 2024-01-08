@@ -8,6 +8,7 @@ import com.project.expenseTracker.service.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +22,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public String addExpense(ExpenseInfoRequest reqData, Long currentUserId) {
         try {
-            if(reqData.getAmount() > 0){
+            if(reqData.getAmount().compareTo(BigDecimal.ZERO) > 0){
                 Expense newExpense = new Expense(
                         reqData.getAmount(), reqData.getDate(), reqData.getExpenseCategory(), currentUserId,
                         reqData.getShop(), reqData.getLocation(), reqData.getDescription()
