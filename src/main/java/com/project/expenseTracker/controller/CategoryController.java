@@ -2,8 +2,8 @@ package com.project.expenseTracker.controller;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
-import com.project.expenseTracker.dto.request.CategoryRequest;
-import com.project.expenseTracker.dto.response.CategoryResponse;
+import com.project.expenseTracker.dto.request.CategoryReqData;
+import com.project.expenseTracker.dto.response.CategoryResData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.service.CategoryService;
 import jakarta.servlet.http.HttpSession;
@@ -24,7 +24,7 @@ public class CategoryController {
 
 
     @PostMapping(value = WebAPIUrlConstants.CATEGORY_CREATE_API, produces = "application/json")
-    public ResponseEntity<Object> addCategory(@RequestBody CategoryRequest categoryReqData, HttpSession session){
+    public ResponseEntity<Object> addCategory(@RequestBody CategoryReqData categoryReqData, HttpSession session){
         try{
             Long currentUserId = (Long) session.getAttribute("currentUserId");
             if(Objects.nonNull(currentUserId)){
@@ -41,7 +41,7 @@ public class CategoryController {
     }
 
     @PostMapping(value = WebAPIUrlConstants.CATEGORY_SUB_ADD_API, produces = "application/json")
-    public ResponseEntity<Object> addSubcategory(@PathVariable Long categoryId, @RequestBody List<CategoryRequest> reqData, HttpSession session) {
+    public ResponseEntity<Object> addSubcategory(@PathVariable Long categoryId, @RequestBody List<CategoryReqData> reqData, HttpSession session) {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
 
@@ -64,7 +64,7 @@ public class CategoryController {
     @GetMapping(value = WebAPIUrlConstants.CATEGORY_ID_WISE_DETAILS_API, produces = "application/json")
     public ResponseEntity<Object> getIdWiseCategoryList(@PathVariable Long categoryId) {
         try {
-            CategoryResponse category = categoryService.getIdWiseCategoryDetails(categoryId);
+            CategoryResData category = categoryService.getIdWiseCategoryDetails(categoryId);
 
             if(Objects.nonNull(category)){
                 return ResponseHandler.generateResponse(category, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
@@ -81,7 +81,7 @@ public class CategoryController {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
             if(Objects.nonNull(currentUserId)){
-                List<CategoryResponse> allCategory = categoryService.getAllCategory(currentUserId);
+                List<CategoryResData> allCategory = categoryService.getAllCategory(currentUserId);
 
                 if(Objects.nonNull(allCategory) && allCategory.size() > 0){
                     return ResponseHandler.generateResponse(allCategory, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);

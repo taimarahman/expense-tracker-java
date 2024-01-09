@@ -5,18 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ExpenseInfoRequest {
-    private BigDecimal amount;
-    private LocalDate date;
-    private Long expenseCategory;
-    private String shop;
-    private String location;
+public class CategoryReqData {
+    private String categoryName;
     private String description;
 }

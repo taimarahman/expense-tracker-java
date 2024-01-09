@@ -1,8 +1,8 @@
 package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
-import com.project.expenseTracker.dto.request.CategoryRequest;
-import com.project.expenseTracker.dto.response.CategoryResponse;
+import com.project.expenseTracker.dto.request.CategoryReqData;
+import com.project.expenseTracker.dto.response.CategoryResData;
 import com.project.expenseTracker.model.Category;
 import com.project.expenseTracker.repository.CategoryRepository;
 import com.project.expenseTracker.repository.UserRepository;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void addCategory(CategoryRequest categoryReqData, Long currentUserId) {
+    public void addCategory(CategoryReqData categoryReqData, Long currentUserId) {
         try{
             Category category = new Category(categoryReqData.getCategoryName(), categoryReqData.getDescription(), currentUserId);
             categoryRepo.save(category);
@@ -42,7 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public String addSubcategory(Long categoryId, List<CategoryRequest> reqData, Long currentUserId) {
+    public String addSubcategory(Long categoryId, List<CategoryReqData> reqData, Long currentUserId) {
         try {
             Optional<Category> category = categoryRepo.findById(categoryId);
 
@@ -68,7 +67,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse getIdWiseCategoryDetails(Long categoryId) {
+    public CategoryResData getIdWiseCategoryDetails(Long categoryId) {
         try{
             Optional<Category> category = categoryRepo.findById(categoryId);
             if(category.isPresent()){
@@ -76,14 +75,14 @@ public class CategoryServiceImpl implements CategoryService {
 
                 List<Category> subcategories = categoryRepo.findByParentId(categoryId);
 
-                List<CategoryResponse> subcategoryList = subcategories.stream()
-                        .map(sub -> CategoryResponse.builder()
+                List<CategoryResData> subcategoryList = subcategories.stream()
+                        .map(sub -> CategoryResData.builder()
                                 .categoryName(sub.getCategoryName())
                                 .description(sub.getDescription())
                                 .build())
                         .collect(Collectors.toList());
 
-                return CategoryResponse.builder()
+                return CategoryResData.builder()
                         .categoryName(parentCategory.getCategoryName())
                         .description(parentCategory.getDescription())
                         .subcategories(subcategoryList)
@@ -96,9 +95,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> getAllCategory(Long currentUserId) {
+    public List<CategoryResData> getAllCategory(Long currentUserId) {
         try {
-            List<CategoryResponse> allCategories = new ArrayList<>();
+            List<CategoryResData> allCategories = new ArrayList<>();
             List<Category> categories;
             Long adminId = userRepo.findIdByUsername("admin");
 
@@ -110,7 +109,7 @@ public class CategoryServiceImpl implements CategoryService {
 
             if(categories.size() > 0){
                 for (Category c: categories) {
-                    CategoryResponse cr = new CategoryResponse(c.getCategoryName(), c.getDescription());
+                    CategoryResData cr = new CategoryResData(c.getCategoryName(), c.getDescription());
                     List<Category> subcategories;
 
                     if(adminId.equals(currentUserId) ){
@@ -123,7 +122,7 @@ public class CategoryServiceImpl implements CategoryService {
 
                         cr.getSubcategories().addAll(
                                 subcategories.stream()
-                                        .map(sub ->CategoryResponse.builder()
+                                        .map(sub -> CategoryResData.builder()
                                                 .categoryName(sub.getCategoryName())
                                                 .description(sub.getDescription())
                                                 .build())

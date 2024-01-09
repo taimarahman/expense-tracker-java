@@ -1,6 +1,5 @@
 package com.project.expenseTracker.dto.response;
 
-import com.project.expenseTracker.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,12 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategoryResponse {
+public class CategoryResData {
     private String categoryName;
     private String description;
-    private List<CategoryResponse> subcategories = new ArrayList<>();
+    private List<CategoryResData> subcategories = new ArrayList<>();
 
-    public CategoryResponse(String categoryName, String description) {
+    public CategoryResData(String categoryName, String description) {
         this.categoryName = categoryName;
         this.description = description;
     }

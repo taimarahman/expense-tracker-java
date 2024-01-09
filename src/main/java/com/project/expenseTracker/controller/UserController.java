@@ -3,10 +3,10 @@ package com.project.expenseTracker.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
-import com.project.expenseTracker.dto.request.UserInfoRequest;
-import com.project.expenseTracker.dto.request.UserProfileRequest;
+import com.project.expenseTracker.dto.request.UserInfoReqData;
+import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
-import com.project.expenseTracker.dto.response.UserInfoResponse;
+import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.model.Users;
 import com.project.expenseTracker.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -30,7 +30,7 @@ public class UserController {
     @Autowired
     UserService userService;
     @PostMapping(WebAPIUrlConstants.USER_REGISTER_API)
-    public ResponseEntity<Object> register(@RequestBody UserInfoRequest user){
+    public ResponseEntity<Object> register(@RequestBody UserInfoReqData user){
         try{
             if(userService.isUsernameExists(user.getUsername()))
                 return ResponseHandler.generateResponse("Username already exists", HttpStatus.BAD_REQUEST);
@@ -68,7 +68,7 @@ public class UserController {
     @PostMapping( value = WebAPIUrlConstants.USER_PROFILE_UPDATE_API, consumes={"multipart/form-data"}, produces = "application/json")
     public ResponseEntity<Object> updateUserProfile(@PathVariable String username, @RequestParam("userProfileInfo") String userProfileInfo, @RequestParam MultipartFile profileImage){
         try{
-            UserProfileRequest userInfo = objectMapper.readValue(userProfileInfo, UserProfileRequest.class);
+            UserProfileReqData userInfo = objectMapper.readValue(userProfileInfo, UserProfileReqData.class);
             String successMsg = userService.updateUserProfile(username, profileImage, userInfo);
 
             if(Objects.nonNull(successMsg) && !successMsg.isEmpty()){
@@ -85,7 +85,7 @@ public class UserController {
     public ResponseEntity<Object> getUserProfileInfo(@PathVariable String username, HttpSession session){
         try{
             if(session.getAttribute("currentUser").equals(username)){
-                UserInfoResponse userInfo = userService.getUserProfileInfo(username);
+                UserInfoResData userInfo = userService.getUserProfileInfo(username);
                 if(userInfo != null){
                     return ResponseHandler.generateResponse(userInfo, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
                 } else {

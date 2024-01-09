@@ -2,7 +2,7 @@ package com.project.expenseTracker.controller;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
-import com.project.expenseTracker.dto.request.ExpenseInfoRequest;
+import com.project.expenseTracker.dto.request.ExpenseInfoReqData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.model.Expense;
 import com.project.expenseTracker.service.ExpenseService;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(WebAPIUrlConstants.EXPENSE_API)
@@ -24,7 +25,7 @@ public class ExpenseController {
     private ExpenseService expenseService;
 
     @PostMapping(value = WebAPIUrlConstants.EXPENSE_CREATE_API, produces = "application/json")
-    public ResponseEntity<Object> addExpense(@RequestBody ExpenseInfoRequest reqData, HttpSession session) {
+    public ResponseEntity<Object> addExpense(@RequestBody ExpenseInfoReqData reqData, HttpSession session) {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
 
@@ -69,10 +70,10 @@ public class ExpenseController {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
 
             if(Objects.nonNull(currentUserId)){
-                Expense updatedExpense = expenseService.updateExpense(reqData, currentUserId);
+                String successMsg = expenseService.updateExpense(reqData, currentUserId);
 
-                if(Objects.nonNull(updatedExpense)){
-                    return ResponseHandler.generateResponse(updatedExpense, ResponseMessageConstants.UPDATE_SUCCESS, HttpStatus.OK);
+                if(Objects.nonNull(successMsg) && !successMsg.isEmpty()){
+                    return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
                 } else
                     return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
 
@@ -94,7 +95,7 @@ public class ExpenseController {
                 List<Expense> list = expenseService.getExpenseList(currentUserId);
 
                 if(Objects.nonNull(list) && list.size() > 0){
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+                    return ResponseHandler.generateResponse(list, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
                 } else
                     return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
             } else
@@ -107,15 +108,13 @@ public class ExpenseController {
     }
 
     @GetMapping(value = WebAPIUrlConstants.EXPENSE_MONTHLY_LIST_API, produces = "application/json")
-    public ResponseEntity<Object> getMonthlyExpenseList(@PathVariable(name="month", required = false) Integer month, @PathVariable(name="year", required = false) Integer year, HttpSession session) {
+    public ResponseEntity<Object> getMonthlyExpenseList(@RequestParam(name="month", required = false, defaultValue = "-1") String month, @RequestParam(name="year", required = false) String year, HttpSession session) {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
 
             if(Objects.nonNull(currentUserId)){
-                Integer reqMonth = month != null ? month : LocalDate.now().getMonthValue();
-                Integer reqYear = year != null ? year : LocalDate.now().getYear();
 
-                List<Expense> list = expenseService.getMonthlyExpenseList(currentUserId, reqMonth, reqYear);
+                List<Expense> list = expenseService.getMonthlyExpenseList(currentUserId, month, year);
 
                 if(Objects.nonNull(list) && list.size() > 0){
                     return ResponseHandler.generateResponse(list, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);

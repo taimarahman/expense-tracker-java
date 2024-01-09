@@ -1,6 +1,5 @@
-package com.project.expenseTracker.dto.request;
+package com.project.expenseTracker.dto.response;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,16 +8,11 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class IncomeRequest {
-
-    private BigDecimal incomeAmount;
+public class IncomeDetailsData {
 
     private String incomeSource;
-
-    private Integer month;
-
-    private Integer year;
+    private BigDecimal incomeAmount;
 }

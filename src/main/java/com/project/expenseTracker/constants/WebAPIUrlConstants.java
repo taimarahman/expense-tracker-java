@@ -31,13 +31,15 @@ public class WebAPIUrlConstants {
     public static final String EXPENSE_UPDATE_API = "/update";
     public static final String EXPENSE_DELETE_API = "/delete/{id}";
     public static final String EXPENSE_LIST_API = "/list";
-    public static final String EXPENSE_MONTHLY_LIST_API = "/monthly-list/{month}/{year}";
+    public static final String EXPENSE_MONTHLY_LIST_API = "/monthly-list";
 
 //  Income-related APIs
     public static final String INCOME_API = BASE_API_URL + "/income";
     public static final String INCOME_ADD_API = "/add";
     public static final String INCOME_UPDATE_API = "/update";
-    public static final String INCOME_MONTHLY_DETAILS_API = "/update/{month}/{year}";
+    public static final String INCOME_MONTHLY_DETAILS_API = "/monthly-details";
+    public static final String INCOME_OVERAll_DETAILS_API = "/list/{month}/{year}";
+
 
 
     // Report-related APIs

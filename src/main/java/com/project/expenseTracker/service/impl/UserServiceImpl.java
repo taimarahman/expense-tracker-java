@@ -1,8 +1,8 @@
 package com.project.expenseTracker.service.impl;
 
-import com.project.expenseTracker.dto.request.UserInfoRequest;
-import com.project.expenseTracker.dto.request.UserProfileRequest;
-import com.project.expenseTracker.dto.response.UserInfoResponse;
+import com.project.expenseTracker.dto.request.UserInfoReqData;
+import com.project.expenseTracker.dto.request.UserProfileReqData;
+import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.model.UserProfileInfo;
 import com.project.expenseTracker.model.Users;
 import com.project.expenseTracker.repository.UserRepository;
@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
     @Override
-    public void register(UserInfoRequest user) {
+    public void register(UserInfoReqData user) {
         try {
             Users newUser = new Users(user.getUsername(), user.getEmail());
 
@@ -58,13 +58,13 @@ public class UserServiceImpl implements UserService {
         return null;
     }
     @Override
-    public UserInfoResponse getUserProfileInfo(String username) {
+    public UserInfoResData getUserProfileInfo(String username) {
         try {
             Users foundUser = userRepo.findUsersByUsername(username);
             if(foundUser != null){
                 UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
 
-                return UserInfoResponse.builder()
+                return UserInfoResData.builder()
                         .username(foundUser.getUsername())
                         .email(foundUser.getEmail())
                         .firstName(foundUserProfile.getFirstName())
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String updateUserProfile(String username, MultipartFile profileImage, UserProfileRequest userInfo) throws IOException {
+    public String updateUserProfile(String username, MultipartFile profileImage, UserProfileReqData userInfo) throws IOException {
         try {
             Users user = userRepo.findUsersByUsername(username);
 
