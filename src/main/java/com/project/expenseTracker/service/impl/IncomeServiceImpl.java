@@ -79,10 +79,20 @@ public class IncomeServiceImpl implements IncomeService {
                 return IncomeResData.builder()
                         .month(reqMonth)
                         .year(reqYear)
-                        .monthlyTotal(totalIncome)
+                        .totalIncome(totalIncome)
                         .details(detailsList)
                         .build();
             }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public List<IncomeResData> getIncomeDetails(Long currentUserId) {
+        try{
 
         } catch (Exception ex) {
             ex.printStackTrace();

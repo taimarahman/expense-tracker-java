@@ -95,4 +95,26 @@ public class IncomeController {
             return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping(value = WebAPIUrlConstants.INCOME_OVERAll_DETAILS_API, produces = "application/json")
+    public ResponseEntity<Object> getOverallDetails( HttpSession session) {
+        try {
+            Long currentUserId = (Long) session.getAttribute("currentUserId");
+
+            if(Objects.nonNull(currentUserId)){
+
+                List<IncomeResData> resData = incomeService.getIncomeDetails(currentUserId);
+
+                if(Objects.nonNull(resData) && resData.size() > 0){
+                    return ResponseHandler.generateResponse(resData, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+                } else
+                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
+            } else
+                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+        }
+    }
 }
