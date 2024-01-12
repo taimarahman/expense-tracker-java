@@ -12,10 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Service
 public class IncomeServiceImpl implements IncomeService {
@@ -93,7 +92,36 @@ public class IncomeServiceImpl implements IncomeService {
     @Override
     public List<IncomeResData> getIncomeDetails(Long currentUserId) {
         try{
+            List<Map<String, Object>> rows = incomeRepo.getAllMonthlyIncomeSummaries(currentUserId);
 
+            if(rows.size() > 0 ){
+                List<IncomeResData> allMonthlySummery = rows.stream().map(
+                        row -> IncomeResData.builder()
+                                    .month((Integer) row.get("month"))
+                                    .year((Integer) row.get("year"))
+                                    .totalIncome((BigDecimal) row.get("totalIncome"))
+                                    .build()
+                        )
+                        .collect(Collectors.toList());
+
+                allMonthlySummery.forEach(summary -> {
+                    List<Income> monthlyList = incomeRepo.findAllByUserIdAndMonthAndYear(
+                            currentUserId, summary.getMonth(), summary.getYear());
+
+                    if (Objects.nonNull(monthlyList) && monthlyList.size() > 0) {
+                        List<IncomeDetailsData> detailsList = monthlyList.stream()
+                                .map(item -> IncomeDetailsData.builder()
+                                        .incomeSource(item.getIncomeSource())
+                                        .incomeAmount(item.getIncomeAmount())
+                                        .build())
+                                .collect(Collectors.toList());
+
+                        summary.setDetails(detailsList);
+                    }
+                });
+
+                return allMonthlySummery;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
