@@ -9,6 +9,7 @@ import com.project.expenseTracker.model.Expense;
 import com.project.expenseTracker.model.Income;
 import com.project.expenseTracker.service.IncomeService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +27,13 @@ public class IncomeController {
     private IncomeService incomeService;
 
     @PostMapping(value = WebAPIUrlConstants.INCOME_ADD_API, produces = "application/json")
-    public ResponseEntity<Object> addMonthlyIncome(@RequestBody IncomeReqData reqData, HttpSession session) {
+    public ResponseEntity<Object> addMonthlyIncome(@Valid @RequestBody IncomeReqData reqData, HttpSession session) {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
 
             if(Objects.nonNull(currentUserId)){
-                reqData.setMonth(reqData.getMonth() == null ? LocalDate.now().getMonthValue() : reqData.getMonth());
-                reqData.setYear(reqData.getYear() == null ?  LocalDate.now().getYear() : reqData.getYear());
+//                reqData.setMonth(reqData.getMonth() == null ? LocalDate.now().getMonthValue() : reqData.getMonth());
+//                reqData.setYear(reqData.getYear() == null ?  LocalDate.now().getYear() : reqData.getYear());
 
                 String successMsg = incomeService.addMonthlyIncome(currentUserId, reqData);
 

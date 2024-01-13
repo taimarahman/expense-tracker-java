@@ -40,6 +40,13 @@ public class WebAPIUrlConstants {
     public static final String INCOME_MONTHLY_DETAILS_API = "/monthly-details";
     public static final String INCOME_OVERAll_DETAILS_API = "/details";
 
+    //  Savings-related APIs
+    public static final String SAVINGS_API = BASE_API_URL + "/savings";
+    public static final String SAVINGS_ADD_API = "/add";
+//    public static final String SAVINGS_UPDATE_API = "/update";
+    public static final String SAVINGS_MONTHLY_DETAILS_API = "/monthly-details";
+    public static final String SAVINGS_OVERAll_DETAILS_API = "/details";
+
 
 
     // Report-related APIs
