@@ -1,6 +1,7 @@
 package com.project.expenseTracker.dto.request;
 
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.antlr.v4.runtime.misc.NotNull;
 
@@ -12,12 +13,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class SavingsReqData {
 
-    @NonNull
+    @NotEmpty(message = "Amount can not be empty.")
     private BigDecimal savingsAmount;
 
-    @NonNull
+    @NotEmpty(message = "Month can not be empty.")
     private Integer month;
 
-    @NonNull
+    @NotEmpty(message = "Year can not be empty.")
     private Integer year;
 }

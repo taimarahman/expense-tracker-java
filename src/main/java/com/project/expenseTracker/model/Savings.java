@@ -28,4 +28,11 @@ public class Savings {
 
     @Column(nullable = false)
     private Long userId;
+
+    public Savings(BigDecimal savingsAmount, Integer month, Integer year, Long userId) {
+        this.savingsAmount = savingsAmount;
+        this.month = month;
+        this.year = year;
+        this.userId = userId;
+    }
 }
