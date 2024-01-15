@@ -8,6 +8,9 @@ import com.project.expenseTracker.service.SavingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Objects;
+
 @Service
 public class SavingsServiceImpl implements SavingsService {
 
@@ -23,6 +26,23 @@ public class SavingsServiceImpl implements SavingsService {
             savingsRepo.save(newSavings);
 
             return ResponseMessageConstants.SAVE_SUCCESS;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public Savings getMonthlySavings(Long currentUserId, String month, String year) {
+        try {
+            Integer reqMonth = month.equals("null") ? LocalDate.now().getMonthValue() : Integer.parseInt(month);
+            Integer reqYear = year.equals("null") ? LocalDate.now().getYear() : Integer.parseInt(year);
+
+            Savings savings = savingsRepo.findByUserIdAndMonthAndYear(currentUserId, reqMonth, reqYear);
+
+            if (Objects.nonNull(savings)){
+                return savings;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

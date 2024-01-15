@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SavingsRepository extends JpaRepository<Savings, Long> {
 
+    Savings findByUserIdAndMonthAndYear(Long currentUserId, Integer month, Integer year);
 }
