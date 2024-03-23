@@ -6,8 +6,10 @@ import com.project.expenseTracker.dto.request.CategoryReqData;
 import com.project.expenseTracker.dto.response.CategoryResData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.service.CategoryService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -77,8 +79,12 @@ public class CategoryController {
     }
 
     @GetMapping(value = WebAPIUrlConstants.CATEGORY_ALL_DETAILS_API, produces = "application/json")
-    public ResponseEntity<Object> getCategoryDetails(HttpSession session) {
+    public ResponseEntity<Object> getCategoryDetails(HttpServletRequest req) {
         try {
+            HttpSession session = req.getSession();
+            if(session.isNew()){
+                System.out.println("new" + session.getAttribute("currentUserId"));
+            }
             Long currentUserId = (Long) session.getAttribute("currentUserId");
             if(Objects.nonNull(currentUserId)){
                 List<CategoryResData> allCategory = categoryService.getAllCategory(currentUserId);
@@ -88,7 +94,7 @@ public class CategoryController {
                 } else
                     return ResponseHandler.generateResponse(null, ResponseMessageConstants.DATA_NOT_FOUND, HttpStatus.OK);
             } else {
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
+                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.FORBIDDEN);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

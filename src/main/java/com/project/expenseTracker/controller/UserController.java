@@ -9,7 +9,9 @@ import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.model.Users;
 import com.project.expenseTracker.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,10 +51,11 @@ public class UserController {
     }
 
     @PostMapping( value=WebAPIUrlConstants.USER_LOGIN_API, produces="application/json" )
-    public ResponseEntity<Object> login(@RequestBody Users user, HttpSession session){
+    public ResponseEntity<Object> login(@RequestBody Users user, HttpServletRequest req){
         try{
             Users loggedUser = userService.authenticateLogin(user);
             if(Objects.nonNull(loggedUser)){
+                HttpSession session = req.getSession(true);
                 session.setAttribute("currentUserId", loggedUser.getUserId());
                 session.setAttribute("currentUser", loggedUser.getUsername());
                 return ResponseHandler.generateResponse("User login successfully", HttpStatus.OK);
