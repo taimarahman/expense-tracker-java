@@ -8,6 +8,8 @@ import com.project.expenseTracker.model.Users;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService{
 
     @Autowired
     UserRepository userRepo;
@@ -57,6 +59,7 @@ public class UserServiceImpl implements UserService {
 
         return null;
     }
+
     @Override
     public UserInfoResData getUserProfileInfo(String username) {
         try {
@@ -88,6 +91,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isUserEmailExists(String email) {
         return userRepo.existsByEmail(email);
+    }
+
+    @Override
+    public Long findIdByUsername(String username) {
+        return userRepo.findIdByUsername(username);
     }
 
     @Override

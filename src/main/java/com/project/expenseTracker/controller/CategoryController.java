@@ -6,12 +6,16 @@ import com.project.expenseTracker.dto.request.CategoryReqData;
 import com.project.expenseTracker.dto.response.CategoryResData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.service.CategoryService;
+import com.project.expenseTracker.service.UserService;
+import com.project.expenseTracker.utils.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,11 +28,14 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private UserService userService;
+
 
     @PostMapping(value = WebAPIUrlConstants.CATEGORY_CREATE_API, produces = "application/json")
-    public ResponseEntity<Object> addCategory(@RequestBody CategoryReqData categoryReqData, HttpSession session){
+    public ResponseEntity<Object> addCategory(@RequestBody CategoryReqData categoryReqData){
         try{
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
+            Long currentUserId = userService.findIdByUsername(SecurityUtils.getCurrentUsername());
             if(Objects.nonNull(currentUserId)){
                 categoryService.addCategory(categoryReqData, currentUserId);
                 return ResponseHandler.generateResponse(ResponseMessageConstants.SAVE_SUCCESS, HttpStatus.CREATED);
@@ -43,9 +50,9 @@ public class CategoryController {
     }
 
     @PostMapping(value = WebAPIUrlConstants.CATEGORY_SUB_ADD_API, produces = "application/json")
-    public ResponseEntity<Object> addSubcategory(@PathVariable Long categoryId, @RequestBody List<CategoryReqData> reqData, HttpSession session) {
+    public ResponseEntity<Object> addSubcategory(@PathVariable Long categoryId, @RequestBody List<CategoryReqData> reqData) {
         try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
+            Long currentUserId = userService.findIdByUsername(SecurityUtils.getCurrentUsername());
 
             if(Objects.nonNull(currentUserId)){
                 String successMsg = categoryService.addSubcategory(categoryId, reqData, currentUserId);
@@ -79,13 +86,11 @@ public class CategoryController {
     }
 
     @GetMapping(value = WebAPIUrlConstants.CATEGORY_ALL_DETAILS_API, produces = "application/json")
-    public ResponseEntity<Object> getCategoryDetails(HttpServletRequest req) {
+    public ResponseEntity<Object> getCategoryDetails() {
         try {
-            HttpSession session = req.getSession();
-            if(session.isNew()){
-                System.out.println("new" + session.getAttribute("currentUserId"));
-            }
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
+
+            Long currentUserId = userService.findIdByUsername(SecurityUtils.getCurrentUsername());
+
             if(Objects.nonNull(currentUserId)){
                 List<CategoryResData> allCategory = categoryService.getAllCategory(currentUserId);
 
