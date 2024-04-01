@@ -40,11 +40,11 @@ public class CategoryController {
                 categoryService.addCategory(categoryReqData, currentUserId);
                 return ResponseHandler.generateResponse(ResponseMessageConstants.SAVE_SUCCESS, HttpStatus.CREATED);
             } else {
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
+                return ResponseHandler.generateErrorResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
             }
         }catch (Exception ex){
             ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+            return ResponseHandler.generateErrorResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
 
         }
     }
@@ -62,11 +62,11 @@ public class CategoryController {
                 } else
                     return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
             } else {
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
+                return ResponseHandler.generateErrorResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+            return ResponseHandler.generateErrorResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -81,14 +81,13 @@ public class CategoryController {
                 return ResponseHandler.generateResponse(null, ResponseMessageConstants.DATA_NOT_FOUND, HttpStatus.OK);
         } catch (Exception ex) {
             ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+            return ResponseHandler.generateErrorResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping(value = WebAPIUrlConstants.CATEGORY_ALL_DETAILS_API, produces = "application/json")
     public ResponseEntity<Object> getCategoryDetails() {
         try {
-
             Long currentUserId = userService.findIdByUsername(SecurityUtils.getCurrentUsername());
 
             if(Objects.nonNull(currentUserId)){
@@ -99,11 +98,11 @@ public class CategoryController {
                 } else
                     return ResponseHandler.generateResponse(null, ResponseMessageConstants.DATA_NOT_FOUND, HttpStatus.OK);
             } else {
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.FORBIDDEN);
+                return ResponseHandler.generateErrorResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.FORBIDDEN);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+            return ResponseHandler.generateErrorResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
         }
     }
 }
