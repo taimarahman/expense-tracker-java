@@ -9,6 +9,11 @@ import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.model.Users;
 import com.project.expenseTracker.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Null;
@@ -85,6 +90,23 @@ public class UserController {
     }
 
     @GetMapping(value = WebAPIUrlConstants.USER_PROFILE_INFO_API, produces = "application/json")
+    @Operation(
+            summary = "Get user profile information",
+            description = "Returns detailed profile of the currently logged-in user. The username in path must match the session."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Profile found successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserInfoResData.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "User profile not found"),
+            @ApiResponse(responseCode = "403", description = "Unauthorized - session username doesn't match path"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<Object> getUserProfileInfo(@PathVariable String username, HttpSession session){
         try{
             if(session.getAttribute("currentUser").equals(username)){
