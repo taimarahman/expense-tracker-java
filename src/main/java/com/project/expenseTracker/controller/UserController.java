@@ -7,7 +7,7 @@ import com.project.expenseTracker.dto.request.UserInfoReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.UserInfoResData;
-import com.project.expenseTracker.model.Users;
+import com.project.expenseTracker.model.User;
 import com.project.expenseTracker.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.constraints.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,9 +55,9 @@ public class UserController {
     }
 
     @PostMapping( value=WebAPIUrlConstants.USER_LOGIN_API, produces="application/json" )
-    public ResponseEntity<Object> login(@RequestBody Users user, HttpServletRequest req){
+    public ResponseEntity<Object> login(@RequestBody User user, HttpServletRequest req){
         try{
-            Users loggedUser = userService.authenticateLogin(user);
+            User loggedUser = userService.authenticateLogin(user);
             if(Objects.nonNull(loggedUser)){
                 HttpSession session = req.getSession(true);
                 session.setAttribute("currentUserId", loggedUser.getUserId());

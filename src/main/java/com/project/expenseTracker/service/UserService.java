@@ -3,8 +3,7 @@ package com.project.expenseTracker.service;
 import com.project.expenseTracker.dto.request.UserInfoReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.UserInfoResData;
-import com.project.expenseTracker.model.Users;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.project.expenseTracker.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.io.IOException;
 
 public interface UserService {
      void register(UserInfoReqData user);
-     Users authenticateLogin(Users user);
+     User authenticateLogin(User user);
 
      UserInfoResData getUserProfileInfo(String username);
 

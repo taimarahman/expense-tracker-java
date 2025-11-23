@@ -4,12 +4,10 @@ import com.project.expenseTracker.dto.request.UserInfoReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.model.UserProfileInfo;
-import com.project.expenseTracker.model.Users;
+import com.project.expenseTracker.model.User;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +27,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public void register(UserInfoReqData user) {
         try {
-            Users newUser = new Users(user.getUsername(), user.getEmail());
+            User newUser = new User(user.getUsername(), user.getEmail());
 
             String encryptedPass = passwordEncoder.encode(user.getPassword());
             newUser.setPassword(encryptedPass);
@@ -45,9 +43,9 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Users authenticateLogin(Users user) {
+    public User authenticateLogin(User user) {
         try {
-            Users foundUser = userRepo.findUsersByUsername(user.getUsername());
+            User foundUser = userRepo.findUsersByUsername(user.getUsername());
             if(foundUser != null){
                 if(passwordEncoder.matches(user.getPassword(), foundUser.getPassword())){
                     return foundUser;
@@ -63,7 +61,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserInfoResData getUserProfileInfo(String username) {
         try {
-            Users foundUser = userRepo.findUsersByUsername(username);
+            User foundUser = userRepo.findUsersByUsername(username);
             if(foundUser != null){
                 UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
 
@@ -101,7 +99,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public String updateUserProfile(String username, MultipartFile profileImage, UserProfileReqData userInfo) throws IOException {
         try {
-            Users user = userRepo.findUsersByUsername(username);
+            User user = userRepo.findUsersByUsername(username);
 
             if(user != null && !profileImage.isEmpty()){
                 String originalFilename = profileImage.getOriginalFilename();
