@@ -1,6 +1,7 @@
 package com.project.expenseTracker.service;
 
 import com.project.expenseTracker.dto.request.UserInfoReqData;
+import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.model.User;
@@ -11,7 +12,7 @@ import java.io.IOException;
 
 public interface UserService {
      void register(UserInfoReqData user);
-     User authenticateLogin(User user);
+     User authenticateLogin(UserLoginReqData reqData);
 
      UserInfoResData getUserProfileInfo(String username);
 

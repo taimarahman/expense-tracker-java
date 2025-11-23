@@ -1,6 +1,7 @@
 package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.dto.request.UserInfoReqData;
+import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.model.UserProfileInfo;
@@ -8,6 +9,7 @@ import com.project.expenseTracker.model.User;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,14 +18,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepo;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
     @Override
     public void register(UserInfoReqData user) {
         try {
@@ -43,11 +47,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User authenticateLogin(User user) {
+    public User authenticateLogin(UserLoginReqData reqData) {
         try {
-            User foundUser = userRepo.findUsersByUsername(user.getUsername());
-            if(foundUser != null){
-                if(passwordEncoder.matches(user.getPassword(), foundUser.getPassword())){
+            User foundUser = userRepo.findByUsername(reqData.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + reqData.getUsername()));
+            if (foundUser != null) {
+                if (passwordEncoder.matches(reqData.getPassword(), foundUser.getPassword())) {
                     return foundUser;
                 }
             }
@@ -61,8 +66,10 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserInfoResData getUserProfileInfo(String username) {
         try {
-            User foundUser = userRepo.findUsersByUsername(username);
-            if(foundUser != null){
+            User foundUser = userRepo.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+            ;
+            if (foundUser != null) {
                 UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
 
                 return UserInfoResData.builder()
@@ -99,9 +106,11 @@ public class UserServiceImpl implements UserService{
     @Override
     public String updateUserProfile(String username, MultipartFile profileImage, UserProfileReqData userInfo) throws IOException {
         try {
-            User user = userRepo.findUsersByUsername(username);
+            User user = userRepo.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+            ;
 
-            if(user != null && !profileImage.isEmpty()){
+            if (user != null && !profileImage.isEmpty()) {
                 String originalFilename = profileImage.getOriginalFilename();
                 String fileExtension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
                 String imagePath = username + "_profile" + fileExtension;
@@ -113,7 +122,7 @@ public class UserServiceImpl implements UserService{
                         .firstName(userInfo.getFirstName())
                         .lastName(userInfo.getLastName())
                         .profession(userInfo.getProfession())
-                        .profileImageUrl("profile-images/" +imagePath)
+                        .profileImageUrl("profile-images/" + imagePath)
                         .build();
 
                 user.setUserProfileInfo(userProfileInfo);

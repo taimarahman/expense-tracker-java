@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.request.UserInfoReqData;
+import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.UserInfoResData;
@@ -55,9 +56,9 @@ public class UserController {
     }
 
     @PostMapping( value=WebAPIUrlConstants.USER_LOGIN_API, produces="application/json" )
-    public ResponseEntity<Object> login(@RequestBody User user, HttpServletRequest req){
+    public ResponseEntity<Object> login(@RequestBody UserLoginReqData reqData, HttpServletRequest req){
         try{
-            User loggedUser = userService.authenticateLogin(user);
+            User loggedUser = userService.authenticateLogin(reqData);
             if(Objects.nonNull(loggedUser)){
                 HttpSession session = req.getSession(true);
                 session.setAttribute("currentUserId", loggedUser.getUserId());
@@ -89,23 +90,6 @@ public class UserController {
     }
 
     @GetMapping(value = WebAPIUrlConstants.USER_PROFILE_INFO_API, produces = "application/json")
-    @Operation(
-            summary = "Get user profile information",
-            description = "Returns detailed profile of the currently logged-in user. The username in path must match the session."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Profile found successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = UserInfoResData.class)
-                    )
-            ),
-            @ApiResponse(responseCode = "400", description = "User profile not found"),
-            @ApiResponse(responseCode = "403", description = "Unauthorized - session username doesn't match path"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
     public ResponseEntity<Object> getUserProfileInfo(@PathVariable String username, HttpSession session){
         try{
             if(session.getAttribute("currentUser").equals(username)){
