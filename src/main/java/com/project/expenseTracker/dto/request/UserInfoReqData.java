@@ -1,17 +1,19 @@
 package com.project.expenseTracker.dto.request;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.NonNull;
 
 @Data
 public class UserInfoReqData {
 
-    @NotEmpty(message = "Username can not be empty.")
+    @NotBlank(message = "Username can not be empty.")
     private String username;
-    @NotEmpty(message = "Email can not be empty.")
+
+    @NotBlank(message = "Email can not be empty.")
+    @Email
     private String email;
-    @NotEmpty(message = "Password can not be empty.")
+    @NotBlank(message = "Password can not be empty.")
     private String password;
 
     private String firstName;
