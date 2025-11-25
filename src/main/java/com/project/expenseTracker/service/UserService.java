@@ -12,6 +12,7 @@ import java.io.IOException;
 
 public interface UserService {
      void register(UserInfoReqData user);
+
      User authenticateLogin(UserLoginReqData reqData);
 
      UserInfoResData getUserProfileInfo(String username);

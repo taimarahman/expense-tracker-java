@@ -39,15 +39,7 @@ public class UserController {
     @PostMapping(WebAPIUrlConstants.USER_REGISTER_API)
     public ResponseEntity<Object> register(@RequestBody UserInfoReqData user){
         try{
-            if(userService.isUsernameExists(user.getUsername()))
-                return ResponseHandler.generateResponse("Username already exists", HttpStatus.BAD_REQUEST);
-
-            if(userService.isUserEmailExists(user.getEmail()))
-                return ResponseHandler.generateResponse("Email already exists", HttpStatus.BAD_REQUEST);
-
-            if(user.getUsername() != null && user.getEmail() != null)
-                userService.register(user);
-
+            userService.register(user);
             return ResponseHandler.generateResponse("success", HttpStatus.CREATED);
         }catch(Exception e){
             e.printStackTrace();

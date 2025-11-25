@@ -31,13 +31,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public void register(UserInfoReqData user) {
         try {
-            User newUser = new User(user.getUsername(), user.getEmail());
+            if(userRepo.existsByUsername(user.getUsername())){
+                throw new RuntimeException("Username already exists");
+            }
+            if(userRepo.existsByEmail(user.getEmail())){
+                throw new RuntimeException("Email already exists");
+            }
 
             String encryptedPass = passwordEncoder.encode(user.getPassword());
-            newUser.setPassword(encryptedPass);
 
-            UserProfileInfo newUserProfile = new UserProfileInfo(user.getFirstName(), user.getLastName());
-            newUser.setUserProfileInfo(newUserProfile);
+            UserProfileInfo newUserProfile = UserProfileInfo.builder()
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .profession(user.getProfession())
+                    .build();
+
+            User newUser = User.builder()
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .password(encryptedPass)
+                    .userProfileInfo(newUserProfile)
+                    .build();
 
             userRepo.save(newUser);
         } catch (Exception e) {

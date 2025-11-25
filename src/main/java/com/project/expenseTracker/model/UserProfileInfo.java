@@ -23,9 +23,6 @@ public class UserProfileInfo {
     private String profession;
     private String profileImageUrl;
 
-    public UserProfileInfo(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
+
 
 }
