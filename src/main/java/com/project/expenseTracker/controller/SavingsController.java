@@ -10,10 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
@@ -24,12 +21,12 @@ public class SavingsController {
     @Autowired
     SavingsService savingsService;
 
-    @RequestMapping(value = WebAPIUrlConstants.SAVINGS_ADD_API, produces = "aaplication/json")
+    @PostMapping(value = WebAPIUrlConstants.SAVINGS_ADD_API, produces = "aaplication/json")
     public ResponseEntity<Object> addSavings(@RequestBody SavingsReqData reqData, HttpSession session) {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
             if (Objects.nonNull(currentUserId)) {
-                    String successMsg = savingsService.addSavings(reqData, currentUserId);
+                String successMsg = savingsService.addSavings(reqData, currentUserId);
                 if (Objects.nonNull(successMsg) && !successMsg.isEmpty()) {
                     return ResponseHandler.generateResponse(successMsg, HttpStatus.CREATED);
                 } else
@@ -46,7 +43,7 @@ public class SavingsController {
     }
 
 
-    @RequestMapping(value = WebAPIUrlConstants.SAVINGS_MONTHLY_DETAILS_API, produces = "application/json")
+    @GetMapping(value = WebAPIUrlConstants.SAVINGS_MONTHLY_DETAILS_API, produces = "application/json")
     public ResponseEntity<Object> getMonthlySavings(@RequestParam(name = "month", required = false, defaultValue = "-1") String month, @RequestParam(name = "year", required = false) String year, HttpSession session) {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
