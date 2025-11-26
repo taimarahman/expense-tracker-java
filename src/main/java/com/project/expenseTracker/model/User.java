@@ -18,19 +18,18 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    @Column(unique = true)
+
+    @Column(unique = true, nullable = false)
     private String username;
-    @Column(unique = true)
+
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(nullable = false)
     private String password;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
     private UserProfileInfo userProfileInfo;
 
-
-    public User(String username, String email) {
-        this.username = username;
-        this.email = email;
-    }
 }
