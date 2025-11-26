@@ -11,6 +11,7 @@ import com.project.expenseTracker.model.UserProfileInfo;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,19 +60,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User authenticateLogin(UserLoginReqData reqData) {
-        try {
-            User foundUser = userRepo.findByUsername(reqData.getUsername())
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + reqData.getUsername()));
-            if (foundUser != null) {
-                if (passwordEncoder.matches(reqData.getPassword(), foundUser.getPassword())) {
-                    return foundUser;
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        User foundUser = userRepo.findByUsername(reqData.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password"));
+        if (!passwordEncoder.matches(reqData.getPassword(), foundUser.getPassword())) {
+            throw new BadCredentialsException("Invalid username or password");
         }
 
-        return null;
+        return foundUser;
     }
 
     @Override

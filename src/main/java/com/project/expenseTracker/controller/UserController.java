@@ -46,8 +46,8 @@ public class UserController {
 
     @PostMapping( value=WebAPIUrlConstants.USER_LOGIN_API, produces="application/json" )
     public ResponseEntity<Object> login(@RequestBody UserLoginReqData reqData, HttpServletRequest req){
-        try{
             User loggedUser = userService.authenticateLogin(reqData);
+
             if(Objects.nonNull(loggedUser)){
                 HttpSession session = req.getSession(true);
                 session.setAttribute("currentUserId", loggedUser.getUserId());
@@ -56,10 +56,7 @@ public class UserController {
             } else {
                 return ResponseHandler.generateResponse(null, "Login Failure! Username or Password incorrect", HttpStatus.BAD_REQUEST);
             }
-        }catch(Exception e){
-            e.printStackTrace();
-            return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
     }
 
     @PostMapping( value = WebAPIUrlConstants.USER_PROFILE_UPDATE_API, consumes={"multipart/form-data"}, produces = "application/json")

@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 public class UserLoginReqData {
-    @NotBlank(message = "Username can not be empty.")
+    @NotBlank(message = "Username is required.")
     private String username;
-    @NotBlank(message = "Password can not be empty.")
+    @NotBlank(message = "Password is required.")
     private String password;
 }
