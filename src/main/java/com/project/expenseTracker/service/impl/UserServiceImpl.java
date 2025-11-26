@@ -4,8 +4,10 @@ import com.project.expenseTracker.dto.request.UserInfoReqData;
 import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.UserInfoResData;
-import com.project.expenseTracker.model.UserProfileInfo;
+import com.project.expenseTracker.exception.EmailAlreadyExistsException;
+import com.project.expenseTracker.exception.UsernameAlreadyExistException;
 import com.project.expenseTracker.model.User;
+import com.project.expenseTracker.model.UserProfileInfo;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,46 +20,41 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepo;
+
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public void register(UserInfoReqData user) {
-        try {
-            if(userRepo.existsByUsername(user.getUsername())){
-                throw new RuntimeException("Username already exists");
-            }
-            if(userRepo.existsByEmail(user.getEmail())){
-                throw new RuntimeException("Email already exists");
-            }
-
-            String encryptedPass = passwordEncoder.encode(user.getPassword());
-
-            UserProfileInfo newUserProfile = UserProfileInfo.builder()
-                    .firstName(user.getFirstName())
-                    .lastName(user.getLastName())
-                    .profession(user.getProfession())
-                    .build();
-
-            User newUser = User.builder()
-                    .username(user.getUsername())
-                    .email(user.getEmail())
-                    .password(encryptedPass)
-                    .userProfileInfo(newUserProfile)
-                    .build();
-
-            userRepo.save(newUser);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("An error occurred while fetching the list of expenses", e);
+        if (userRepo.existsByUsername(user.getUsername())) {
+            throw new UsernameAlreadyExistException("Username already exists");
         }
+        if (userRepo.existsByEmail(user.getEmail())) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
+        String encryptedPass = passwordEncoder.encode(user.getPassword());
+
+        UserProfileInfo newUserProfile = UserProfileInfo.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .profession(user.getProfession())
+                .build();
+
+        User newUser = User.builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .password(encryptedPass)
+                .userProfileInfo(newUserProfile)
+                .build();
+
+        userRepo.save(newUser);
     }
 
     @Override

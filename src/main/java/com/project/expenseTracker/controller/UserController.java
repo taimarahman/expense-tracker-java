@@ -8,6 +8,7 @@ import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.UserInfoResData;
+import com.project.expenseTracker.exception.UsernameAlreadyExistException;
 import com.project.expenseTracker.model.User;
 import com.project.expenseTracker.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,15 +37,11 @@ public class UserController {
     }
     @Autowired
     UserService userService;
+
     @PostMapping(WebAPIUrlConstants.USER_REGISTER_API)
     public ResponseEntity<Object> register(@RequestBody UserInfoReqData user){
-        try{
-            userService.register(user);
-            return ResponseHandler.generateResponse("success", HttpStatus.CREATED);
-        }catch(Exception e){
-            e.printStackTrace();
-            return ResponseHandler.generateResponse("failure", HttpStatus.BAD_REQUEST);
-        }
+        userService.register(user);
+        return ResponseHandler.generateResponse("success", HttpStatus.CREATED);
     }
 
     @PostMapping( value=WebAPIUrlConstants.USER_LOGIN_API, produces="application/json" )
