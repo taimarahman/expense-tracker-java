@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,13 +40,13 @@ public class UserController {
     UserService userService;
 
     @PostMapping(WebAPIUrlConstants.USER_REGISTER_API)
-    public ResponseEntity<Object> register(@RequestBody UserInfoReqData user){
+    public ResponseEntity<Object> register(@Valid @RequestBody UserInfoReqData user){
         userService.register(user);
-        return ResponseHandler.generateResponse("success", HttpStatus.CREATED);
+        return ResponseHandler.generateResponse("Successfully registered user!", HttpStatus.CREATED);
     }
 
     @PostMapping( value=WebAPIUrlConstants.USER_LOGIN_API, produces="application/json" )
-    public ResponseEntity<Object> login(@RequestBody UserLoginReqData reqData, HttpServletRequest req){
+    public ResponseEntity<Object> login(@Valid @RequestBody UserLoginReqData reqData, HttpServletRequest req){
             User loggedUser = userService.authenticateLogin(reqData);
 
             if(Objects.nonNull(loggedUser)){
