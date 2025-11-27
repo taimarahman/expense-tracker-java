@@ -20,6 +20,12 @@ public class GlobalExceptionHandler {
         return ResponseHandler.generateErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleNotFoundExceptions(ResourceNotFoundException ex) {
+        return ResponseHandler.generateErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAllExceptions(Exception ex) {
         ex.printStackTrace();
