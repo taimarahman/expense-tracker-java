@@ -8,14 +8,9 @@ import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.UserInfoResData;
-import com.project.expenseTracker.exception.UsernameAlreadyExistException;
+import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.model.User;
 import com.project.expenseTracker.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -24,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
@@ -79,20 +73,10 @@ public class UserController {
 
     @GetMapping(value = WebAPIUrlConstants.USER_PROFILE_INFO_API, produces = "application/json")
     public ResponseEntity<Object> getUserProfileInfo(@PathVariable String username, HttpSession session) {
-        try {
-            if (session.getAttribute("currentUser").equals(username)) {
-                UserInfoResData userInfo = userService.getUserProfileInfo(username);
-                if (userInfo != null) {
-                    return ResponseHandler.generateResponse(userInfo, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
-                } else {
-                    return ResponseHandler.generateResponse(null, ResponseMessageConstants.DATA_NOT_FOUND, HttpStatus.BAD_REQUEST);
-                }
-            } else {
-                return ResponseHandler.generateResponse(null, ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.FORBIDDEN);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+        if (!session.getAttribute("currentUser").equals(username)) {
+            throw new ForbiddenException(ResponseMessageConstants.UNAUTHORIZED_USER);
         }
+        UserInfoResData userInfo = userService.getUserProfileInfo(username);
+        return ResponseHandler.generateResponse(userInfo, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
     }
 }

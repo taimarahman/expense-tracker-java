@@ -79,28 +79,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfoResData getUserProfileInfo(String username) {
-        try {
-            User foundUser = userRepo.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-            ;
-            if (foundUser != null) {
-                UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
+        User foundUser = userRepo.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
-                return UserInfoResData.builder()
-                        .username(foundUser.getUsername())
-                        .email(foundUser.getEmail())
-                        .firstName(foundUserProfile.getFirstName())
-                        .lastName(foundUserProfile.getLastName())
-                        .profession(foundUserProfile.getProfession())
-                        .profileImageUrl(foundUserProfile.getProfileImageUrl())
-                        .build();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
+        if(foundUserProfile == null){
+            throw new ResourceNotFoundException("User profile information not found");
         }
 
-        return null;
+        return UserInfoResData.builder()
+                .username(foundUser.getUsername())
+                .email(foundUser.getEmail())
+                .firstName(foundUserProfile.getFirstName())
+                .lastName(foundUserProfile.getLastName())
+                .profession(foundUserProfile.getProfession())
+                .address(foundUserProfile.getAddress())
+                .profileImageUrl(foundUserProfile.getProfileImageUrl())
+                .build();
     }
+
 
     @Override
     public Long findIdByUsername(String username) {
