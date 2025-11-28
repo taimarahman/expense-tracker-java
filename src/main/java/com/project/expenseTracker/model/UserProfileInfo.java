@@ -20,6 +20,7 @@ public class UserProfileInfo {
     private Long userProfileId;
     private String firstName;
     private String lastName;
+    private String address;
     private String profession;
     private String profileImageUrl;
 

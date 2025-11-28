@@ -5,11 +5,13 @@ import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.exception.EmailAlreadyExistsException;
+import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.exception.UsernameAlreadyExistException;
 import com.project.expenseTracker.model.User;
 import com.project.expenseTracker.model.UserProfileInfo;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -30,6 +33,11 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    // Configurable upload directory + max size
+    private static final String UPLOAD_DIR = "uploads/profile-images/";
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp");
 
     @Override
     public void register(UserInfoReqData user) {
@@ -95,51 +103,77 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isUsernameExists(String username) {
-        return userRepo.existsByUsername(username);
-    }
-
-    @Override
-    public boolean isUserEmailExists(String email) {
-        return userRepo.existsByEmail(email);
-    }
-
-    @Override
     public Long findIdByUsername(String username) {
         return userRepo.findIdByUsername(username);
     }
 
     @Override
-    public String updateUserProfile(String username, MultipartFile profileImage, UserProfileReqData userInfo) throws IOException {
-        try {
-            User user = userRepo.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-            ;
+    @Transactional
+    public String updateUserProfile(String username, UserProfileReqData reqData) throws IOException {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
-            if (user != null && !profileImage.isEmpty()) {
-                String originalFilename = profileImage.getOriginalFilename();
-                String fileExtension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
-                String imagePath = username + "_profile" + fileExtension;
-                Path filePath = Paths.get("src/main/resources/static/profile-images/" + imagePath);
-                Files.write(filePath, profileImage.getBytes());
-
-                UserProfileInfo userProfileInfo = UserProfileInfo.builder()
-                        .userProfileId(user.getUserProfileInfo().getUserProfileId())
-                        .firstName(userInfo.getFirstName())
-                        .lastName(userInfo.getLastName())
-                        .profession(userInfo.getProfession())
-                        .profileImageUrl("profile-images/" + imagePath)
-                        .build();
-
-                user.setUserProfileInfo(userProfileInfo);
-                userRepo.save(user);
-
-                return "User Profile Updated Successfully";
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        UserProfileInfo userProfile = user.getUserProfileInfo();
+        if (userProfile == null) {
+            userProfile = new UserProfileInfo();
+            user.setUserProfileInfo(userProfile);
         }
 
-        return null;
+        userProfile.setFirstName(reqData.getFirstName());
+        userProfile.setLastName(reqData.getLastName());
+        userProfile.setAddress(reqData.getAddress());
+        userProfile.setProfession(reqData.getProfession());
+
+        MultipartFile profileImage = reqData.getProfileImage();
+
+        // Handle profile image upload
+        if (profileImage != null && !profileImage.isEmpty()) {
+            validateImage(profileImage);
+
+            if (userProfile.getProfileImageUrl() != null) {
+                deleteOldImage(userProfile.getProfileImageUrl());
+            }
+
+            String fileName = username + "_" + System.currentTimeMillis() + getFileExtension(profileImage);
+            Path filePath = Paths.get(UPLOAD_DIR + fileName);
+
+            try {
+                // Create directory if not exists
+                Files.createDirectories(filePath.getParent());
+                Files.write(filePath, profileImage.getBytes());
+                userProfile.setProfileImageUrl("/" + UPLOAD_DIR + fileName);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save image", e); // ← don't swallow!
+            }
+        }
+
+        userRepo.save(user);
+        return "User Profile Updated Successfully!";
+
     }
+
+    private void deleteOldImage(String imageUrl) {
+        try {
+            Path oldImgPath = Paths.get("." + imageUrl); // remove leading "/"
+            Files.deleteIfExists(oldImgPath);
+        } catch (Exception ex) {
+        }
+    }
+
+    private void validateImage(MultipartFile file) {
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("File too large! File size should be less than 5MB");
+        }
+        String ext = getFileExtension(file);
+        if (!ALLOWED_EXTENSIONS.contains(ext)) {
+            throw new IllegalArgumentException("Unsupported file type! File type should be .jpg, .jpeg, .png or .webp");
+        }
+    }
+
+    private String getFileExtension(MultipartFile file) {
+        String originalName = file.getOriginalFilename();
+        return originalName != null && originalName.contains(".")
+                ? originalName.substring(originalName.lastIndexOf(".")) : ".jpg";
+    }
+
 }

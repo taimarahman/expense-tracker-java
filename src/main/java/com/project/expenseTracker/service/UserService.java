@@ -17,11 +17,7 @@ public interface UserService {
 
      UserInfoResData getUserProfileInfo(String username);
 
-     boolean isUsernameExists(String username);
-
-     boolean isUserEmailExists(String email);
-
      Long findIdByUsername(String username);
 
-     String updateUserProfile(String username, MultipartFile profileImage, UserProfileReqData userInfo) throws IOException;
+     String updateUserProfile(String username, UserProfileReqData userInfo) throws IOException;
 }
