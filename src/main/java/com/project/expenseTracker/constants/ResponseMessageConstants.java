@@ -1,29 +1,21 @@
 package com.project.expenseTracker.constants;
 
 public class ResponseMessageConstants {
-    public final static String DATA_FOUND = "DATA FOUND.";
-    public final static String DATA_NOT_FOUND = "DATA NOT FOUND.";
-    public final static String THERE_IS_NO_DATA = "THERE IS NO DATA.";
-    public final static String SOMETHING_WENT_WRONG = "SOMETHING WENT WRONG.";
-    public final static String UNEXPECTED_ERROR = "AN UNEXPECTED ERROR OCCURRED, PLEASE TRY AGAIN LATER!";
-    public final static String NID_ERROR = "INVALID NID OR NID SERVER NOT REACHABLE, PLEASE TRY AGAIN LATER!";
-    public final static String LOGIN_SUCCESSFULLY = "USER LOGIN SUCCESSFULLY.";
-    public final static String INVALID_USER = "INVALID USER ID / PASSWORD";
-    public final static String UNAUTHORIZED_USER = "YOU ARE NOT AUTHORIZED TO PERFORM THIS ACTION";
+    public final static String DATA_FOUND = "Data found.";
+    public final static String DATA_NOT_FOUND = "Data not found.";
+    public final static String THERE_IS_NO_DATA = "There is no data.";
+    public final static String SOMETHING_WENT_WRONG = "Something went wrong.";
+    public final static String UNEXPECTED_ERROR = "An unexpected error occurred, please try again later!";
+    public final static String NID_ERROR = "Invalid nid or nid server not reachable, please try again later!";
+    public final static String LOGIN_SUCCESSFULLY = "User login successfully.";
+    public final static String INVALID_USER = "Invalid user id or password";
+    public final static String UNAUTHORIZED_USER = "You are not authorized to perform this action";
 
     // success
-    public final static String SUCCESS = "SUCCESS.";
-    public final static String SAVE_SUCCESS = "SUCCESSFULLY SAVED.";
-    public final static String UPDATE_SUCCESS = "SUCCESSFULLY UPDATED.";
-    public final static String DELETE_SUCCESS = "SUCCESSFULLY DELETED.";
-    public final static String COPY_SUCCESS = "SUCCESSFULLY COPIED.";
-    public final static String SUBMIT_SUCCESS = "SUCCESSFULLY SUBMITTED.";
-
-    public final static String INVALID_CENTER_WISE_MAPPING = "INVALID CENTER OR CENTER WISE MAPPING IS NOT ENABLE!";
-    public final static String ADD_RULE_SUCCESS = "CALCULATION SUCCESSFUL";
-
+    public final static String SAVE_SUCCESS = "Successfully saved.";
+    public final static String UPDATE_SUCCESS = "Successfully updated.";
+    public final static String DELETE_SUCCESS = "Successfully deleted.";
 
     // error
-    public final static String ERROR = "ERROR.";
-    public final static String SUBMIT_ERROR = "ERROR IN SUBMIT!";
+    public final static String ERROR = "Error.";
 }
