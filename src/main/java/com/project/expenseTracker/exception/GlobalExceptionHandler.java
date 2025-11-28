@@ -38,4 +38,9 @@ public class GlobalExceptionHandler {
         String firstErrorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
         return ResponseHandler.generateErrorResponse(firstErrorMessage, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Object> handleForbiddenException(ForbiddenException ex) {
+        return ResponseHandler.generateErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
 }
