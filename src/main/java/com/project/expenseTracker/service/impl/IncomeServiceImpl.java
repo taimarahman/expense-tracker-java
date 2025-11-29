@@ -4,9 +4,13 @@ import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.dto.request.IncomeReqData;
 import com.project.expenseTracker.dto.response.IncomeDetailsData;
 import com.project.expenseTracker.dto.response.IncomeResData;
+import com.project.expenseTracker.exception.ForbiddenException;
+import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.model.Income;
 import com.project.expenseTracker.repository.IncomeRepository;
+import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.IncomeService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,19 +25,33 @@ public class IncomeServiceImpl implements IncomeService {
 
     @Autowired
     private IncomeRepository incomeRepo;
+
+    @Autowired
+    private UserRepository userRepo;
+
     @Override
-    public String addMonthlyIncome(Long currentUserId, IncomeReqData reqData) {
-        try {
-            Income newIncome = new Income(reqData.getIncomeAmount(), reqData.getIncomeSource(), reqData.getMonth(), reqData.getYear(), currentUserId);
+    public String addMonthlyIncome(IncomeReqData reqData,HttpSession session) {
 
-            incomeRepo.save(newIncome);
+        Long currentUserId = (Long) session.getAttribute("currentUserId");
 
-            return ResponseMessageConstants.SAVE_SUCCESS;
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if(currentUserId == null){
+            throw new ForbiddenException(ResponseMessageConstants.UNAUTHORIZED_USER);
         }
-        return null;
+
+            if(!userRepo.existsById(currentUserId)){
+            throw new ResourceNotFoundException("User not found.");
+        }
+
+        Income newIncome = Income.builder()
+                .amount(reqData.getAmount())
+                .source(reqData.getSource())
+                .month(reqData.getMonth())
+                .year(reqData.getYear())
+                .userId(currentUserId)
+                .build();
+
+        incomeRepo.save(newIncome);
+        return "Income saved successfully!";
     }
 
     @Override
@@ -67,12 +85,12 @@ public class IncomeServiceImpl implements IncomeService {
 
             if(Objects.nonNull(monthlyList)){
                 List<IncomeDetailsData> detailsList = monthlyList.stream().map(item -> IncomeDetailsData.builder()
-                        .incomeSource(item.getIncomeSource())
-                        .incomeAmount(item.getIncomeAmount())
+                        .incomeSource(item.getSource())
+                        .incomeAmount(item.getAmount())
                         .build())
                         .collect(Collectors.toList());
 
-                BigDecimal totalIncome = monthlyList.stream().map(Income::getIncomeAmount)
+                BigDecimal totalIncome = monthlyList.stream().map(Income::getAmount)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                 return IncomeResData.builder()
@@ -111,8 +129,8 @@ public class IncomeServiceImpl implements IncomeService {
                     if (Objects.nonNull(monthlyList) && monthlyList.size() > 0) {
                         List<IncomeDetailsData> detailsList = monthlyList.stream()
                                 .map(item -> IncomeDetailsData.builder()
-                                        .incomeSource(item.getIncomeSource())
-                                        .incomeAmount(item.getIncomeAmount())
+                                        .incomeSource(item.getSource())
+                                        .incomeAmount(item.getAmount())
                                         .build())
                                 .collect(Collectors.toList());
 

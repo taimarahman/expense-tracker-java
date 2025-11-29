@@ -1,8 +1,13 @@
 package com.project.expenseTracker.dto.request;
 
-import jakarta.annotation.Nonnull;
-import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -12,14 +17,16 @@ import java.math.BigDecimal;
 @Builder
 public class IncomeReqData {
 
-    @NotEmpty(message = "Amount can not be empty.")
-    private BigDecimal incomeAmount;
+    @NotNull(message = "Amount is required.")
+    private BigDecimal amount;
 
-    private String incomeSource;
+    @NotBlank(message = "Income source is required.")
+    private String source;
 
-    @NotEmpty(message = "Month can not be empty.")
+    @NotNull(message = "Month is required.")
+    @Min(1) @Max(12)
     private Integer month;
 
-    @NotEmpty(message = "Year can not be empty.")
+    @NotNull(message = "Year is required.")
     private Integer year;
 }

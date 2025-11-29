@@ -5,25 +5,29 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name = "incomes")
 public class Income {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long incomeId;
 
-    @Column(nullable = false)
-    private BigDecimal incomeAmount;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
 
     @Column(nullable = false)
-    private String incomeSource;
+    private String source;
 
     @Column(nullable = false)
     private Integer month;
@@ -34,11 +38,10 @@ public class Income {
     @Column(nullable = false)
     private Long userId;
 
-    public Income(BigDecimal incomeAmount, String incomeSource, Integer month, Integer year, Long userId) {
-        this.incomeAmount = incomeAmount;
-        this.incomeSource = incomeSource;
-        this.month = month;
-        this.year = year;
-        this.userId = userId;
-    }
+    @CreationTimestamp
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

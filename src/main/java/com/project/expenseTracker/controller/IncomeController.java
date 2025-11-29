@@ -5,7 +5,6 @@ import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.request.IncomeReqData;
 import com.project.expenseTracker.dto.response.IncomeResData;
 import com.project.expenseTracker.dto.response.ResponseHandler;
-import com.project.expenseTracker.model.Expense;
 import com.project.expenseTracker.model.Income;
 import com.project.expenseTracker.service.IncomeService;
 import jakarta.servlet.http.HttpSession;
@@ -28,27 +27,9 @@ public class IncomeController {
 
     @PostMapping(value = WebAPIUrlConstants.INCOME_ADD_API, produces = "application/json")
     public ResponseEntity<Object> addMonthlyIncome(@Valid @RequestBody IncomeReqData reqData, HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
 
-            if(Objects.nonNull(currentUserId)){
-//                reqData.setMonth(reqData.getMonth() == null ? LocalDate.now().getMonthValue() : reqData.getMonth());
-//                reqData.setYear(reqData.getYear() == null ?  LocalDate.now().getYear() : reqData.getYear());
-
-                String successMsg = incomeService.addMonthlyIncome(currentUserId, reqData);
-
-                if(Objects.nonNull(successMsg) && !successMsg.isEmpty()){
-                    return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
-                } else
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
-            } else
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
-
-        }
+        String successMsg = incomeService.addMonthlyIncome(reqData, session);
+        return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
     }
 
     @PostMapping(value = WebAPIUrlConstants.INCOME_UPDATE_API, produces = "application/json")
@@ -56,13 +37,13 @@ public class IncomeController {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
 
-            if(Objects.nonNull(currentUserId)){
+            if (Objects.nonNull(currentUserId)) {
                 reqData.setMonth(reqData.getMonth() == null ? LocalDate.now().getMonthValue() : reqData.getMonth());
-                reqData.setYear(reqData.getYear() == null ?  LocalDate.now().getYear() : reqData.getYear());
+                reqData.setYear(reqData.getYear() == null ? LocalDate.now().getYear() : reqData.getYear());
 
                 String successMsg = incomeService.updateMonthlyIncome(currentUserId, reqData);
 
-                if(Objects.nonNull(successMsg) && !successMsg.isEmpty()){
+                if (Objects.nonNull(successMsg) && !successMsg.isEmpty()) {
                     return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
                 } else
                     return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
@@ -76,15 +57,15 @@ public class IncomeController {
     }
 
     @GetMapping(value = WebAPIUrlConstants.INCOME_MONTHLY_DETAILS_API, produces = "application/json")
-    public ResponseEntity<Object> getMonthlyDetails(@RequestParam(name="month", required = false) String month, @RequestParam(name="year", required = false) String year, HttpSession session) {
+    public ResponseEntity<Object> getMonthlyDetails(@RequestParam(name = "month", required = false) String month, @RequestParam(name = "year", required = false) String year, HttpSession session) {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
 
-            if(Objects.nonNull(currentUserId)){
+            if (Objects.nonNull(currentUserId)) {
 
                 IncomeResData resData = incomeService.getMonthlyDetails(currentUserId, month, year);
 
-                if(Objects.nonNull(resData) ){
+                if (Objects.nonNull(resData)) {
                     return ResponseHandler.generateResponse(resData, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
                 } else
                     return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
@@ -98,15 +79,15 @@ public class IncomeController {
     }
 
     @GetMapping(value = WebAPIUrlConstants.INCOME_OVERAll_DETAILS_API, produces = "application/json")
-    public ResponseEntity<Object> getOverallDetails( HttpSession session) {
+    public ResponseEntity<Object> getOverallDetails(HttpSession session) {
         try {
             Long currentUserId = (Long) session.getAttribute("currentUserId");
 
-            if(Objects.nonNull(currentUserId)){
+            if (Objects.nonNull(currentUserId)) {
 
                 List<IncomeResData> resData = incomeService.getIncomeDetails(currentUserId);
 
-                if(Objects.nonNull(resData) && resData.size() > 0){
+                if (Objects.nonNull(resData) && resData.size() > 0) {
                     return ResponseHandler.generateResponse(resData, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
                 } else
                     return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
