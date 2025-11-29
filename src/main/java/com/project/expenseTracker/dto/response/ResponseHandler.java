@@ -30,4 +30,13 @@ public class ResponseHandler {
         map.put("message", message);
         return new ResponseEntity<>(map, status);
     }
+
+    public static ResponseEntity<Object> generateErrorResponse(String message, HttpStatus status, String exceptionDetails){
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("status", false);
+        map.put("statusCode", status.value());
+        map.put("message", message);
+        map.put("details", exceptionDetails);
+        return new ResponseEntity<>(map, status);
+    }
 }

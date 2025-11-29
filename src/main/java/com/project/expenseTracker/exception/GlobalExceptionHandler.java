@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleAllExceptions(Exception ex) {
         ex.printStackTrace();
         return ResponseHandler.generateErrorResponse("Something went wrong. Please try again later.",
-                HttpStatus.INTERNAL_SERVER_ERROR);
+                HttpStatus.INTERNAL_SERVER_ERROR, ex.toString());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
