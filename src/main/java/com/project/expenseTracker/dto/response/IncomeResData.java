@@ -14,9 +14,11 @@ import java.util.List;
 @NoArgsConstructor
 public class IncomeResData {
 
+    private Long incomeId;
     private Integer month;
     private Integer year;
-    private BigDecimal totalIncome;
+    private BigDecimal amount;
+    private String source;
     private List<IncomeDetailsData> details;
 
 }

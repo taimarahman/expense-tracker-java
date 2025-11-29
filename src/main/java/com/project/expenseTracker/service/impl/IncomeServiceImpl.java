@@ -15,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -30,109 +32,84 @@ public class IncomeServiceImpl implements IncomeService {
     private UserRepository userRepo;
 
     @Override
-    public String addMonthlyIncome(IncomeReqData reqData,HttpSession session) {
+    public String addMonthlyIncome(IncomeReqData reqData, HttpSession session) {
 
         Long currentUserId = (Long) session.getAttribute("currentUserId");
 
-        if(currentUserId == null){
+        if (currentUserId == null) {
             throw new ForbiddenException(ResponseMessageConstants.UNAUTHORIZED_USER);
         }
-
-            if(!userRepo.existsById(currentUserId)){
+        if (!userRepo.existsById(currentUserId)) {
             throw new ResourceNotFoundException("User not found.");
         }
 
-        Income newIncome = Income.builder()
-                .amount(reqData.getAmount())
-                .source(reqData.getSource())
-                .month(reqData.getMonth())
-                .year(reqData.getYear())
-                .userId(currentUserId)
-                .build();
+        // update
+        if (reqData.getIncomeId() != null) {
+            Income income = incomeRepo.findById(reqData.getIncomeId()).orElseThrow(() -> new ResourceNotFoundException("Income not found"));
+
+            if (!income.getMonth().equals(reqData.getMonth()) || !income.getYear().equals(reqData.getYear())) {
+                throw new ForbiddenException("You can not change the month or year of an existing income.");
+            }
+
+            income.setAmount(reqData.getAmount());
+            income.setSource(reqData.getSource());
+
+            incomeRepo.save(income);
+            return "Income updated successfully!";
+        }
+
+        // create
+        Income newIncome = Income.builder().amount(reqData.getAmount()).source(reqData.getSource()).month(reqData.getMonth()).year(reqData.getYear()).userId(currentUserId).build();
 
         incomeRepo.save(newIncome);
         return "Income saved successfully!";
     }
 
     @Override
-    public String updateMonthlyIncome(Long currentUserId, Income reqData) {
-        try{
-            Optional<Income> income = incomeRepo.findById(reqData.getIncomeId());
+    public List<IncomeResData> getMonthlyDetails(Long currentUserId, Integer reqMonth, Integer reqYear) {
+        List<Income> monthlyList = incomeRepo.findAllByUserIdAndMonthAndYear(currentUserId, reqMonth, reqYear);
 
-            if(income.isPresent()){
-                Income updatedIncome = income.get();
+        List<IncomeResData> detailsList = new ArrayList<>();
 
-                if(updatedIncome.getUserId().equals(currentUserId)){
-                    incomeRepo.save(reqData);
-
-                    return ResponseMessageConstants.UPDATE_SUCCESS;
-                }
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (!monthlyList.isEmpty()) {
+            detailsList = monthlyList.stream().map(item -> IncomeResData.builder()
+                    .incomeId(item.getIncomeId())
+                    .month(item.getMonth())
+                    .year(item.getYear())
+                    .source(item.getSource())
+                    .amount(item.getAmount())
+                    .build()).toList();
         }
-        return null;
+
+        return detailsList;
     }
 
     @Override
-    public IncomeResData getMonthlyDetails(Long currentUserId, String month, String year) {
-        try{
-            Integer reqMonth = month.equals("null") ? LocalDate.now().getMonthValue() : Integer.parseInt(month);
-            Integer reqYear = year.equals("null") ? LocalDate.now().getYear() : Integer.parseInt(year);
+    public IncomeResData getIncomeDetails(Long currentUserId, Long incomeId) {
 
-            List<Income> monthlyList = incomeRepo.findAllByUserIdAndMonthAndYear(currentUserId, reqMonth, reqYear);
+        Income income = incomeRepo.findById(incomeId).orElseThrow(() -> new ResourceNotFoundException("Income not found"));
 
-            if(Objects.nonNull(monthlyList)){
-                List<IncomeDetailsData> detailsList = monthlyList.stream().map(item -> IncomeDetailsData.builder()
-                        .incomeSource(item.getSource())
-                        .incomeAmount(item.getAmount())
-                        .build())
-                        .collect(Collectors.toList());
-
-                BigDecimal totalIncome = monthlyList.stream().map(Income::getAmount)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                return IncomeResData.builder()
-                        .month(reqMonth)
-                        .year(reqYear)
-                        .totalIncome(totalIncome)
-                        .details(detailsList)
-                        .build();
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (!income.getUserId().equals(currentUserId)) {
+            throw new ForbiddenException("You are not authorized to view this income");
         }
-        return null;
+
+        return IncomeResData.builder().incomeId(income.getIncomeId()).amount(income.getAmount()).source(income.getSource()).month(income.getMonth()).year(income.getYear()).build();
+
     }
 
     @Override
     public List<IncomeResData> getIncomeDetails(Long currentUserId) {
-        try{
+        try {
             List<Map<String, Object>> rows = incomeRepo.getAllMonthlyIncomeSummaries(currentUserId);
 
-            if(rows.size() > 0 ){
-                List<IncomeResData> allMonthlySummery = rows.stream().map(
-                        row -> IncomeResData.builder()
-                                    .month((Integer) row.get("month"))
-                                    .year((Integer) row.get("year"))
-                                    .totalIncome((BigDecimal) row.get("totalIncome"))
-                                    .build()
-                        )
-                        .collect(Collectors.toList());
+            if (rows.size() > 0) {
+                List<IncomeResData> allMonthlySummery = rows.stream().map(row -> IncomeResData.builder().month((Integer) row.get("month")).year((Integer) row.get("year")).amount((BigDecimal) row.get("totalIncome")).build()).collect(Collectors.toList());
 
                 allMonthlySummery.forEach(summary -> {
-                    List<Income> monthlyList = incomeRepo.findAllByUserIdAndMonthAndYear(
-                            currentUserId, summary.getMonth(), summary.getYear());
+                    List<Income> monthlyList = incomeRepo.findAllByUserIdAndMonthAndYear(currentUserId, summary.getMonth(), summary.getYear());
 
                     if (Objects.nonNull(monthlyList) && monthlyList.size() > 0) {
-                        List<IncomeDetailsData> detailsList = monthlyList.stream()
-                                .map(item -> IncomeDetailsData.builder()
-                                        .incomeSource(item.getSource())
-                                        .incomeAmount(item.getAmount())
-                                        .build())
-                                .collect(Collectors.toList());
+                        List<IncomeDetailsData> detailsList = monthlyList.stream().map(item -> IncomeDetailsData.builder().incomeSource(item.getSource()).incomeAmount(item.getAmount()).build()).collect(Collectors.toList());
 
                         summary.setDetails(detailsList);
                     }

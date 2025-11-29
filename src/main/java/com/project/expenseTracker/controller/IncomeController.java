@@ -25,57 +25,35 @@ public class IncomeController {
     @Autowired
     private IncomeService incomeService;
 
-    @PostMapping(value = WebAPIUrlConstants.INCOME_ADD_API, produces = "application/json")
+    @PostMapping(produces = "application/json")
     public ResponseEntity<Object> addMonthlyIncome(@Valid @RequestBody IncomeReqData reqData, HttpSession session) {
 
         String successMsg = incomeService.addMonthlyIncome(reqData, session);
         return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
     }
 
-    @PostMapping(value = WebAPIUrlConstants.INCOME_UPDATE_API, produces = "application/json")
-    public ResponseEntity<Object> updateMonthlyIncome(@RequestBody Income reqData, HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
-
-            if (Objects.nonNull(currentUserId)) {
-                reqData.setMonth(reqData.getMonth() == null ? LocalDate.now().getMonthValue() : reqData.getMonth());
-                reqData.setYear(reqData.getYear() == null ? LocalDate.now().getYear() : reqData.getYear());
-
-                String successMsg = incomeService.updateMonthlyIncome(currentUserId, reqData);
-
-                if (Objects.nonNull(successMsg) && !successMsg.isEmpty()) {
-                    return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
-                } else
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
-            } else
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+    @GetMapping(produces = "application/json")
+    public ResponseEntity<Object> getMonthlyDetails(@RequestParam(name = "month", required = false) Integer month, @RequestParam(name = "year", required = false) Integer year, HttpSession session) {
+        Long currentUserId = (Long) session.getAttribute("currentUserId");
+        if (currentUserId == null) {
+            return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
         }
+
+        List<IncomeResData> resData = incomeService.getMonthlyDetails(currentUserId, month, year);
+        return ResponseHandler.generateResponse(resData, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+
     }
 
-    @GetMapping(value = WebAPIUrlConstants.INCOME_MONTHLY_DETAILS_API, produces = "application/json")
-    public ResponseEntity<Object> getMonthlyDetails(@RequestParam(name = "month", required = false) String month, @RequestParam(name = "year", required = false) String year, HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
+    @GetMapping(value = WebAPIUrlConstants.INCOME_DETAILS_API, produces = "application/json")
+    public ResponseEntity<Object> getIncomeDetails(@PathVariable Long incomeId, HttpSession session) {
 
-            if (Objects.nonNull(currentUserId)) {
-
-                IncomeResData resData = incomeService.getMonthlyDetails(currentUserId, month, year);
-
-                if (Objects.nonNull(resData)) {
-                    return ResponseHandler.generateResponse(resData, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
-                } else
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
-            } else
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+        Long currentUserId = (Long) session.getAttribute("currentUserId");
+        if (currentUserId == null) {
+            return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
         }
+
+        IncomeResData resData = incomeService.getIncomeDetails(currentUserId, incomeId);
+        return ResponseHandler.generateResponse(resData, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
     }
 
     @GetMapping(value = WebAPIUrlConstants.INCOME_OVERAll_DETAILS_API, produces = "application/json")

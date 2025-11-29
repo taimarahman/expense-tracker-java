@@ -10,9 +10,9 @@ import java.util.List;
 public interface IncomeService {
     String addMonthlyIncome(IncomeReqData reqData, HttpSession session);
 
-    String updateMonthlyIncome(Long currentUserId, Income reqData);
+    List<IncomeResData> getMonthlyDetails(Long currentUserId, Integer reqMonth, Integer reqYear);
 
-    IncomeResData getMonthlyDetails(Long currentUserId, String reqMonth, String reqYear);
+    IncomeResData getIncomeDetails(Long currentUserId, Long incomeId);
 
     List<IncomeResData> getIncomeDetails(Long currentUserId);
 }

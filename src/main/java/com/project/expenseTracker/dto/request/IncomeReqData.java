@@ -17,6 +17,8 @@ import java.math.BigDecimal;
 @Builder
 public class IncomeReqData {
 
+    private Long incomeId;
+
     @NotNull(message = "Amount is required.")
     private BigDecimal amount;
 
