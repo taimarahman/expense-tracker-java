@@ -13,6 +13,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class IncomeDetailsData {
 
-    private String incomeSource;
-    private BigDecimal incomeAmount;
+    private Long incomeId;
+    private Integer month;
+    private Integer year;
+    private BigDecimal amount;
+    private String source;
 }

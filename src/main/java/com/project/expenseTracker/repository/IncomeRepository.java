@@ -16,6 +16,8 @@ public interface IncomeRepository extends JpaRepository<Income, Long> {
     @Query("SELECT SUM(i.amount) as totalIncome, i.month as month, i.year as year " +
             "FROM Income i " +
             "WHERE i.userId = :userId " +
+            "AND i.year = :year " +
             "GROUP BY i.month, i.year")
-    List<Map<String, Object>> getAllMonthlyIncomeSummaries(Long userId);
+    List<Map<String, Object>> getYearlyIncome(Long userId, Integer year);
+
 }

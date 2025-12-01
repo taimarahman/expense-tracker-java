@@ -1,5 +1,6 @@
 package com.project.expenseTracker.model;
 
+import com.project.expenseTracker.dto.response.IncomeDetailsData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,4 +45,14 @@ public class Income {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public IncomeDetailsData toIncomeDetailsData(){
+        return IncomeDetailsData.builder()
+                .incomeId(this.getIncomeId())
+                .amount(this.getAmount())
+                .source(this.getSource())
+                .month(month)
+                .year(year)
+                .build();
+    }
 }

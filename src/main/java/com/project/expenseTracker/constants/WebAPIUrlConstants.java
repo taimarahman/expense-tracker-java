@@ -36,9 +36,7 @@ public class WebAPIUrlConstants {
 //  Income-related APIs
     public static final String INCOME_API = BASE_API_URL + "/income";
     public static final String INCOME_DETAILS_API = "/{incomeId}";
-    public static final String INCOME_UPDATE_API = "/update";
-    public static final String INCOME_MONTHLY_DETAILS_API = "/monthly-details";
-    public static final String INCOME_OVERAll_DETAILS_API = "/details";
+    public static final String INCOME_YEARLY_DETAILS_API = "/year/{year}";
 
     //  Savings-related APIs
     public static final String SAVINGS_API = BASE_API_URL + "/savings";
