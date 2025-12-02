@@ -4,6 +4,8 @@ import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.dto.request.IncomeReqData;
 import com.project.expenseTracker.dto.response.IncomeDetailsData;
 import com.project.expenseTracker.dto.response.IncomeResData;
+import com.project.expenseTracker.dto.response.ResponseHandler;
+import com.project.expenseTracker.dto.response.ResponseSuccessData;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.model.Income;
@@ -12,6 +14,9 @@ import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.IncomeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -77,7 +82,7 @@ public class IncomeServiceImpl implements IncomeService {
     }
 
     @Override
-    public List<IncomeDetailsData> getMonthlyDetails(Long currentUserId, Integer reqMonth, Integer reqYear) {
+    public ResponseSuccessData getMonthlyDetails(Long currentUserId, Integer reqMonth, Integer reqYear) {
         List<Income> monthlyList = (reqMonth != null && reqYear != null)
                 ? incomeRepo.findAllByUserIdAndMonthAndYear(currentUserId, reqMonth, reqYear)
                 : new ArrayList<>();
@@ -88,7 +93,7 @@ public class IncomeServiceImpl implements IncomeService {
             detailsList = monthlyList.stream().map(Income::toIncomeDetailsData).toList();
         }
 
-        return detailsList;
+        return new ResponseSuccessData(detailsList, ResponseMessageConstants.DATA_FOUND, HttpStatus.FOUND);
     }
 
     @Override

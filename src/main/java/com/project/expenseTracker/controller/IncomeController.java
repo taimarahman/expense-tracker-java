@@ -44,8 +44,9 @@ public class IncomeController {
                                                     @RequestParam(name = "year", required = false) Integer year,
                                                     HttpSession session) {
 
-        List<IncomeDetailsData> resData = incomeService.getMonthlyDetails(getCurrentUserId(session), month, year);
-        return ResponseHandler.generateResponse(resData, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+//        List<IncomeDetailsData> resData = incomeService.getMonthlyDetails(getCurrentUserId(session), month, year);
+        return ResponseEntity.ok(incomeService.getMonthlyDetails(getCurrentUserId(session), month, year));
+//        return ResponseHandler.generateResponse(resData, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
 
     }
 
