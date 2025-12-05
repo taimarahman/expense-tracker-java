@@ -4,8 +4,10 @@ import com.project.expenseTracker.model.Savings;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface SavingsRepository extends JpaRepository<Savings, Long> {
 
-    Savings findByUserIdAndMonthAndYear(Long currentUserId, Integer month, Integer year);
+    List<Savings> findByUserIdAndMonthAndYear(Long currentUserId, Integer month, Integer year);
 }

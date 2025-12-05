@@ -46,6 +46,10 @@ public class SavingsServiceImpl implements SavingsService {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return null;
+
+        return new ResponseSuccessData(detailsData, ResponseMessageConstants.DATA_FOUND, HttpStatus.FOUND);
+
+    }
+
     }
 }
