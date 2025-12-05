@@ -4,7 +4,6 @@ import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.dto.request.IncomeReqData;
 import com.project.expenseTracker.dto.response.IncomeDetailsData;
 import com.project.expenseTracker.dto.response.IncomeResData;
-import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.ResponseSuccessData;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
@@ -15,8 +14,6 @@ import com.project.expenseTracker.service.IncomeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
