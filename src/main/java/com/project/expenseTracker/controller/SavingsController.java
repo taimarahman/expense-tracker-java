@@ -3,16 +3,13 @@ package com.project.expenseTracker.controller;
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.request.SavingsReqData;
-import com.project.expenseTracker.dto.response.ResponseHandler;
-import com.project.expenseTracker.model.Savings;
+import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.service.SavingsService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @RestController
 @RequestMapping(WebAPIUrlConstants.SAVINGS_API)
@@ -21,45 +18,34 @@ public class SavingsController {
     @Autowired
     SavingsService savingsService;
 
-    @PostMapping(value = WebAPIUrlConstants.SAVINGS_ADD_API, produces = "aaplication/json")
-    public ResponseEntity<Object> addSavings(@RequestBody SavingsReqData reqData, HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
-            if (Objects.nonNull(currentUserId)) {
-                String successMsg = savingsService.addSavings(reqData, currentUserId);
-                if (Objects.nonNull(successMsg) && !successMsg.isEmpty()) {
-                    return ResponseHandler.generateResponse(successMsg, HttpStatus.CREATED);
-                } else
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
-            } else
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
-
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
-
+    private Long getCurrentUserId(HttpSession session) {
+        Long userId = (Long) session.getAttribute("currentUserId");
+        if (userId == null) {
+            throw new ForbiddenException(ResponseMessageConstants.UNAUTHORIZED_USER);
         }
+        return userId;
+    }
+
+    @PostMapping
+    public ResponseEntity<Object> saveUpdateSavings(@Valid @RequestBody SavingsReqData reqData, HttpSession session) {
+        return ResponseEntity.ok(savingsService.saveUpdateSavings(reqData, getCurrentUserId(session)));
     }
 
 
-    @GetMapping(value = WebAPIUrlConstants.SAVINGS_MONTHLY_DETAILS_API, produces = "application/json")
-    public ResponseEntity<Object> getMonthlySavings(@RequestParam(name = "month", required = false, defaultValue = "-1") String month, @RequestParam(name = "year", required = false) String year, HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
-            if (Objects.nonNull(currentUserId)) {
-                Savings monthlySavings = savingsService.getMonthlySavings(currentUserId, month, year);
-                if (Objects.nonNull(monthlySavings)) {
-                    return ResponseHandler.generateResponse(monthlySavings, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
-                } else
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
-            } else
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
+    @GetMapping(value = WebAPIUrlConstants.SAVINGS_BY_ID_API)
+    public ResponseEntity<Object> getSavingsDetails(
+            @PathVariable Long savingsId,
+            HttpSession session) {
+        return ResponseEntity.ok(savingsService.getSavingsDetails(getCurrentUserId(session), savingsId));
+    }
 
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+    @GetMapping
+    public ResponseEntity<Object> getMonthlySavings(
+            @RequestParam(name = "month", required = false, defaultValue = "-1") Integer month,
+            @RequestParam(name = "year", required = false) Integer year,
+            HttpSession session) {
+        return ResponseEntity.ok(savingsService.getSavingsDetails(getCurrentUserId(session), month, year));
+    }
 
         }
     }
