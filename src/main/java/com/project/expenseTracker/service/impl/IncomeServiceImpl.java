@@ -4,6 +4,7 @@ import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.dto.request.IncomeReqData;
 import com.project.expenseTracker.dto.response.IncomeDetailsData;
 import com.project.expenseTracker.dto.response.IncomeResData;
+import com.project.expenseTracker.dto.response.ResponseBaseData;
 import com.project.expenseTracker.dto.response.ResponseSuccessData;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
@@ -141,5 +142,19 @@ public class IncomeServiceImpl implements IncomeService {
         return allMonthlySummery;
 
 
+    }
+
+    @Override
+    public ResponseBaseData deleteIncome(Long currentUserId, Long incomeId) {
+        Income income = incomeRepo.findById(incomeId).orElseThrow(
+                () -> new ResourceNotFoundException("Income not found")
+        );
+        if (!income.getUserId().equals(currentUserId)) {
+            throw new ForbiddenException("You are not authorized to delete this income");
+        }
+
+        incomeRepo.delete(income);
+
+        return new ResponseBaseData<>("Income deleted successfully", HttpStatus.OK);
     }
 }

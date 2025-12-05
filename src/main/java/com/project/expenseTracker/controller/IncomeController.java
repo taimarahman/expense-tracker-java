@@ -61,4 +61,10 @@ public class IncomeController {
         List<IncomeResData> resData = incomeService.getYearlyIncomeDetails(getCurrentUserId(session), year);
         return ResponseHandler.generateResponse(resData, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
     }
+
+    @DeleteMapping(value = WebAPIUrlConstants.INCOME_DETAILS_API, produces = "application/json")
+    public ResponseEntity<Object> deleteIncome(@PathVariable Long incomeId, HttpSession session) {
+
+        return ResponseEntity.ok(incomeService.deleteIncome(getCurrentUserId(session), incomeId));
+    }
 }
