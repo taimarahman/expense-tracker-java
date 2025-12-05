@@ -33,9 +33,7 @@ public class SavingsController {
 
 
     @GetMapping(value = WebAPIUrlConstants.SAVINGS_BY_ID_API)
-    public ResponseEntity<Object> getSavingsDetails(
-            @PathVariable Long savingsId,
-            HttpSession session) {
+    public ResponseEntity<Object> getSavingsDetails(@PathVariable Long savingsId, HttpSession session) {
         return ResponseEntity.ok(savingsService.getSavingsDetails(getCurrentUserId(session), savingsId));
     }
 
@@ -47,7 +45,9 @@ public class SavingsController {
         return ResponseEntity.ok(savingsService.getSavingsDetails(getCurrentUserId(session), month, year));
     }
 
-        }
+    @DeleteMapping(value = WebAPIUrlConstants.SAVINGS_BY_ID_API)
+    public ResponseEntity<Object> deleteSavings(@PathVariable Long savingsId, HttpSession session) {
+        return ResponseEntity.ok(savingsService.deleteSavings(getCurrentUserId(session), savingsId));
     }
 
 }

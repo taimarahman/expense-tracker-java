@@ -9,4 +9,6 @@ public interface SavingsService {
     ResponseBaseData getSavingsDetails(Long currentUserId, Long savingsId);
 
     ResponseBaseData getSavingsDetails(Long currentUserId, Integer month, Integer year);
+
+    ResponseBaseData deleteSavings(Long currentUserId, Long id);
 }
