@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -28,8 +31,15 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
     private UserProfileInfo userProfileInfo;
 
+    @Column(nullable = false, columnDefinition = "char(1) default 'Y'")
+    private String activeYn;
+
+    @CreationTimestamp
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 }

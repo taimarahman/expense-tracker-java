@@ -61,6 +61,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .password(encryptedPass)
                 .userProfileInfo(newUserProfile)
+                .activeYn("Y")
                 .build();
 
         userRepo.save(newUser);
