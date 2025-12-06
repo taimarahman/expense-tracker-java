@@ -1,16 +1,15 @@
 package com.project.expenseTracker.service;
 
-import com.project.expenseTracker.dto.request.CategoryReqData;
+import com.project.expenseTracker.dto.CategoryDto;
 import com.project.expenseTracker.dto.response.CategoryResData;
+import com.project.expenseTracker.dto.response.ResponseBaseData;
 
 import java.util.List;
 
 public interface CategoryService {
-    void addCategory(CategoryReqData categoryReqData, Long currentUserId);
+    ResponseBaseData saveUpdateCategory(CategoryDto categoryReqData, Long currentUserId);
 
-    String addSubcategory(Long categoryId, List<CategoryReqData> reqData, Long currentUserId);
-
-    CategoryResData getIdWiseCategoryDetails(Long categoryId);
+    ResponseBaseData getIdWiseCategoryDetails(Long userId, Long categoryId);
 
     List<CategoryResData> getAllCategory(Long currentUserId);
 }

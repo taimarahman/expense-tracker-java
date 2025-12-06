@@ -15,4 +15,5 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT c FROM Category c WHERE c.parentId IS NULL AND c.createdBy IN (:adminId,:currentUserId)")
     List<Category> findAllCategoryByUserId(Long currentUserId, Long adminId);
+
 }

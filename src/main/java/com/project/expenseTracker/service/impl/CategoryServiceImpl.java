@@ -1,97 +1,81 @@
 package com.project.expenseTracker.service.impl;
 
-import com.project.expenseTracker.constants.ResponseMessageConstants;
-import com.project.expenseTracker.dto.request.CategoryReqData;
+import com.project.expenseTracker.dto.CategoryDto;
 import com.project.expenseTracker.dto.response.CategoryResData;
+import com.project.expenseTracker.dto.response.ResponseBaseData;
+import com.project.expenseTracker.dto.response.ResponseSuccessData;
+import com.project.expenseTracker.exception.ForbiddenException;
+import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.model.Category;
 import com.project.expenseTracker.repository.CategoryRepository;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.CategoryService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
-    @Autowired
-    private CategoryRepository categoryRepo;
-    @Autowired
-    private UserRepository userRepo;
-    @Autowired
-    private ModelMapper modelMapper;
+    private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepo, ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
 
     @Override
-    public void addCategory(CategoryReqData categoryReqData, Long currentUserId) {
-        try{
-            Category category = new Category(categoryReqData.getCategoryName(), categoryReqData.getDescription(), currentUserId);
-            categoryRepo.save(category);
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
-    }
+    public ResponseBaseData saveUpdateCategory(CategoryDto reqData, Long currentUserId) {
+        // update
+        if (reqData.getCategoryId() != null) {
+            Category category = categoryRepository.findById(reqData.getCategoryId()).orElseThrow(
+                    () -> new ResourceNotFoundException("Category not found"));
 
-    @Override
-    public String addSubcategory(Long categoryId, List<CategoryReqData> reqData, Long currentUserId) {
-        try {
-            Optional<Category> category = categoryRepo.findById(categoryId);
-
-            if(category.isPresent()){
-                Category parentCategory = category.get();
-                if (parentCategory.getParentId() == null){
-                    reqData.stream().map(sub -> new Category(sub.getCategoryName(), sub.getDescription(), categoryId, currentUserId))
-                            .forEach(categoryRepo::save);
-
-                    return ResponseMessageConstants.SAVE_SUCCESS;
-
-                } else
-                    return "Invalid Category to add subcategory";
-
-            } else
-                return "Invalid Category to add subcategory";
-
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
-    public CategoryResData getIdWiseCategoryDetails(Long categoryId) {
-        try{
-            Optional<Category> category = categoryRepo.findById(categoryId);
-            if(category.isPresent()){
-                Category parentCategory = category.get();
-
-                List<Category> subcategories = categoryRepo.findByParentId(categoryId);
-
-                List<CategoryResData> subcategoryList = subcategories.stream()
-                        .map(sub -> CategoryResData.builder()
-                                .categoryName(sub.getCategoryName())
-                                .description(sub.getDescription())
-                                .build())
-                        .collect(Collectors.toList());
-
-                return CategoryResData.builder()
-                        .categoryName(parentCategory.getCategoryName())
-                        .description(parentCategory.getDescription())
-                        .subcategories(subcategoryList)
-                        .build();
+            if (!category.getKey().equals(reqData.getKey())) {
+                throw new ForbiddenException("Category key cannot be changed.");
             }
-        }catch(Exception ex){
-            ex.printStackTrace();
+
+            category.setName(reqData.getName());
+            category.setDescription(reqData.getDescription());
+            category.setParentId(reqData.getParentId());
+            category.setIsActive(reqData.getIsActive());
+            category.setUpdatedBy(currentUserId);
+            categoryRepository.save(category);
+
+            return new ResponseSuccessData("Category updated successfully!", HttpStatus.OK);
         }
-        return null;
+
+        Category category = Category.builder()
+                .key(reqData.getKey())
+                .name(reqData.getName())
+                .description(reqData.getDescription())
+                .parentId(reqData.getParentId())
+                .userId(currentUserId)
+                .createdBy(currentUserId)
+                .isActive(true)
+                .build();
+
+        categoryRepository.save(category);
+
+        return new ResponseSuccessData("Category saved successfully!", HttpStatus.CREATED);
+    }
+
+
+    @Override
+    public ResponseBaseData getIdWiseCategoryDetails(Long userId, Long categoryId) {
+
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                () -> new ResourceNotFoundException("Category not found")
+        );
+
+        if(!category.getUserId().equals(userId)){
+            throw new ForbiddenException("You are not authorized to view this category");
+        }
+
+        return new ResponseSuccessData(category.toCategoryDto(),
+                "Category found successfully!", HttpStatus.FOUND);
     }
 
     @Override
@@ -99,31 +83,31 @@ public class CategoryServiceImpl implements CategoryService {
         try {
             List<CategoryResData> allCategories = new ArrayList<>();
             List<Category> categories;
-            Long adminId = userRepo.findIdByUsername("admin");
+            Long adminId = userRepository.findIdByUsername("admin");
 
-            if(adminId.equals(currentUserId) ){
-                categories = categoryRepo.findByParentId(null);
+            if (adminId.equals(currentUserId)) {
+                categories = categoryRepository.findByParentId(null);
             } else {
-                categories = categoryRepo.findAllCategoryByUserId(currentUserId, adminId);
+                categories = categoryRepository.findAllCategoryByUserId(currentUserId, adminId);
             }
 
-            if(categories.size() > 0){
-                for (Category c: categories) {
-                    CategoryResData cr = new CategoryResData(c.getCategoryName(), c.getDescription());
+            if (categories.size() > 0) {
+                for (Category c : categories) {
+                    CategoryResData cr = new CategoryResData();
                     List<Category> subcategories;
 
-                    if(adminId.equals(currentUserId) ){
-                        subcategories = categoryRepo.findByParentId(c.getCategoryId());
+                    if (adminId.equals(currentUserId)) {
+                        subcategories = categoryRepository.findByParentId(c.getCategoryId());
                     } else {
-                        subcategories = categoryRepo.findByParentIdAndCreatedByIn(c.getCategoryId(), List.of(adminId,currentUserId));
+                        subcategories = categoryRepository.findByParentIdAndCreatedByIn(c.getCategoryId(), List.of(adminId, currentUserId));
                     }
 
-                    if(subcategories.size() > 0) {
+                    if (subcategories.size() > 0) {
 
                         cr.getSubcategories().addAll(
                                 subcategories.stream()
                                         .map(sub -> CategoryResData.builder()
-                                                .categoryName(sub.getCategoryName())
+                                                .categoryName(sub.getName())
                                                 .description(sub.getDescription())
                                                 .build())
                                         .collect(Collectors.toList())
