@@ -116,32 +116,28 @@ public class IncomeServiceImpl implements IncomeService {
                 : new ArrayList<>();
 
         if (rows.isEmpty()) {
-            return new ArrayList<>();
+            return List.of();
         }
-        List<IncomeResData> allMonthlySummery = rows.stream().map(
-                        row -> IncomeResData.builder()
-                                .month((Integer) row.get("month"))
-                                .year((Integer) row.get("year"))
-                                .totalAmount((BigDecimal) row.get("totalIncome"))
-                                .build())
-                .collect(Collectors.toList());
 
-        allMonthlySummery.forEach(summary -> {
-            List<Income> monthlyList = incomeRepo.findAllByUserIdAndMonthAndYear(currentUserId,
-                    summary.getMonth(), summary.getYear());
+        return rows.stream()
+                .map(row -> {
+                    IncomeResData summary = IncomeResData.builder()
+                                    .month((Integer) row.get("month"))
+                                    .year((Integer) row.get("year"))
+                                    .totalAmount((BigDecimal) row.get("totalIncome"))
+                                    .build();
 
-            if (Objects.nonNull(monthlyList) && !monthlyList.isEmpty()) {
-                List<IncomeDetailsData> detailsList = monthlyList.stream()
-                        .map(Income::toIncomeDetailsData)
-                        .collect(Collectors.toList());
+                    List<Income> monthlyList = incomeRepo.findAllByUserIdAndMonthAndYear(currentUserId,
+                            summary.getMonth(), summary.getYear());
+                    if (!monthlyList.isEmpty()) {
+                        summary.setDetails(monthlyList.stream()
+                                .map(Income::toIncomeDetailsData)
+                                .toList());
+                    }
 
-                summary.setDetails(detailsList);
-            }
-        });
-
-        return allMonthlySummery;
-
-
+                    return summary;
+                    })
+                .toList();
     }
 
     @Override
