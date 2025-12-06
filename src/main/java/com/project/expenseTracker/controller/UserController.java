@@ -56,7 +56,7 @@ public class UserController {
 
     }
 
-    @PostMapping(value = WebAPIUrlConstants.USER_PROFILE_UPDATE_API,
+    @PostMapping(value = WebAPIUrlConstants.USER_PROFILE_INFO_API,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> updateUserProfile(@PathVariable String username,

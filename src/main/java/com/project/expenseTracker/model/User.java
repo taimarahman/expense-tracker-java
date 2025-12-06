@@ -36,7 +36,7 @@ public class User {
     @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
     private UserProfileInfo userProfileInfo;
 
-    @Column(nullable = false, columnDefinition = "char(1) default 'Y'")
+    @Column(nullable = false)
     private String activeYn;
 
     @CreationTimestamp

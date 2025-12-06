@@ -9,7 +9,7 @@ public class WebAPIUrlConstants {
     public static final String USER_REGISTER_API = "/register";
     public static final String USER_LOGIN_API = "/login";
     public static final String USER_PROFILE_UPDATE_API = "/{username}/update";
-    public static final String USER_PROFILE_INFO_API = "/{username}/user-info";
+    public static final String USER_PROFILE_INFO_API = "/{username}/profile";
 
 
     // Category-related APIs
@@ -41,9 +41,7 @@ public class WebAPIUrlConstants {
     //  Savings-related APIs
     public static final String SAVINGS_API = BASE_API_URL + "/savings";
     public static final String SAVINGS_BY_ID_API = "/{savingsId}";
-//    public static final String SAVINGS_UPDATE_API = "/update";
-    public static final String SAVINGS_MONTHLY_DETAILS_API = "/monthly-details";
-    public static final String SAVINGS_OVERAll_DETAILS_API = "/details";
+    public static final String SAVINGS_YEARLY_DETAILS_API = "/year/{year}";
 
 
 
