@@ -12,6 +12,7 @@ import com.project.expenseTracker.model.Savings;
 import com.project.expenseTracker.repository.SavingsRepository;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.SavingsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,23 +23,21 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class SavingsServiceImpl implements SavingsService {
 
-    @Autowired
-    SavingsRepository savingsRepo;
-
-    @Autowired
-    UserRepository userRepo;
+    private final SavingsRepository savingsRepository;
+    private final UserRepository userRepository;
 
     @Override
     public ResponseBaseData saveUpdateSavings(SavingsReqData reqData, Long currentUserId) {
 
-        if (!userRepo.existsById(currentUserId)) {
+        if (!userRepository.existsById(currentUserId)) {
             throw new ResourceNotFoundException("User not found:");
         }
 
         if (reqData.getSavingsId() != null) {
-            Savings savings = savingsRepo.findById(reqData.getSavingsId()).orElseThrow(
+            Savings savings = savingsRepository.findById(reqData.getSavingsId()).orElseThrow(
                     () -> new ResourceNotFoundException("Savings not found"));
 
             if (!savings.getMonth().equals(reqData.getMonth()) || !savings.getYear().equals(reqData.getYear())) {
@@ -47,7 +46,7 @@ public class SavingsServiceImpl implements SavingsService {
 
             savings.setAmount(reqData.getAmount());
             savings.setTitle(reqData.getTitle());
-            savingsRepo.save(savings);
+            savingsRepository.save(savings);
 
             return new ResponseSuccessData("Savings updated successfully!", HttpStatus.OK);
         }
@@ -60,7 +59,7 @@ public class SavingsServiceImpl implements SavingsService {
                 .userId(currentUserId)
                 .build();
 
-        savingsRepo.save(savings);
+        savingsRepository.save(savings);
 
         return new ResponseSuccessData("Savings saved successfully!", HttpStatus.CREATED);
     }
@@ -68,7 +67,7 @@ public class SavingsServiceImpl implements SavingsService {
     @Override
     public ResponseBaseData getSavingsDetails(Long currentUserId, Long savingsId) {
 
-        Savings savings = savingsRepo.findById(savingsId).orElseThrow(
+        Savings savings = savingsRepository.findById(savingsId).orElseThrow(
                 () -> new ResourceNotFoundException("Savings not found")
         );
         if (!savings.getUserId().equals(currentUserId)) {
@@ -82,7 +81,7 @@ public class SavingsServiceImpl implements SavingsService {
     public ResponseBaseData getSavingsDetails(Long currentUserId, Integer month, Integer year) {
 
         List<Savings> savingsList = (month != null && year != null) ?
-                savingsRepo.findByUserIdAndMonthAndYear(currentUserId, month, year) : new ArrayList<>();
+                savingsRepository.findByUserIdAndMonthAndYear(currentUserId, month, year) : new ArrayList<>();
 
         List<SavingsDetailsData> detailsData = new ArrayList<>();
         if (!savingsList.isEmpty()) {
@@ -95,10 +94,10 @@ public class SavingsServiceImpl implements SavingsService {
 
     @Override
     public ResponseBaseData deleteSavings(Long currentUserId, Long savingsId) {
-        Savings savings = savingsRepo.findById(savingsId).orElseThrow(
+        Savings savings = savingsRepository.findById(savingsId).orElseThrow(
                 () -> new ResourceNotFoundException("Savings not found"));
 
-        savingsRepo.delete(savings);
+        savingsRepository.delete(savings);
 
         return new ResponseSuccessData("Savings deleted successfully!", HttpStatus.OK);
     }
@@ -106,7 +105,7 @@ public class SavingsServiceImpl implements SavingsService {
     @Override
     public ResponseBaseData getYearlyDetails(Long currentUserId, Integer year) {
         List<Map<String, Object>> rows = (year != null)
-                ? savingsRepo.getYearlySavings(currentUserId, year)
+                ? savingsRepository.getYearlySavings(currentUserId, year)
                 : new ArrayList<>();
         List<SavingsResData> savingsList = new ArrayList<>();
         if (!rows.isEmpty()) {
@@ -118,7 +117,7 @@ public class SavingsServiceImpl implements SavingsService {
                                 .totalAmount((BigDecimal) row.get("totalSavings"))
                                 .build();
 
-                        List<Savings> monthlyList = savingsRepo.findByUserIdAndMonthAndYear(
+                        List<Savings> monthlyList = savingsRepository.findByUserIdAndMonthAndYear(
                                 currentUserId, savings.getMonth(), savings.getYear()
                         );
                         if (!monthlyList.isEmpty()) {

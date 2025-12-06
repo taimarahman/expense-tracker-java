@@ -12,6 +12,7 @@ import com.project.expenseTracker.model.UserProfileInfo;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,13 +27,11 @@ import java.nio.file.Paths;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    UserRepository userRepo;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     // Configurable upload directory + max size
     private static final String UPLOAD_DIR = "uploads/profile-images/";
@@ -41,10 +40,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void register(UserInfoReqData user) {
-        if (userRepo.existsByUsername(user.getUsername())) {
+        if (userRepository.existsByUsername(user.getUsername())) {
             throw new UsernameAlreadyExistException("Username already exists");
         }
-        if (userRepo.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
@@ -64,12 +63,12 @@ public class UserServiceImpl implements UserService {
                 .activeYn("Y")
                 .build();
 
-        userRepo.save(newUser);
+        userRepository.save(newUser);
     }
 
     @Override
     public User authenticateLogin(UserLoginReqData reqData) {
-        User foundUser = userRepo.findByUsername(reqData.getUsername())
+        User foundUser = userRepository.findByUsername(reqData.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password"));
         if (!passwordEncoder.matches(reqData.getPassword(), foundUser.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
@@ -80,13 +79,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Long findIdByUsername(String username) {
-        return userRepo.findIdByUsername(username);
+        return userRepository.findIdByUsername(username);
     }
 
     @Override
     @Transactional
     public String updateUserProfile(String username, UserProfileReqData reqData) throws IOException {
-        User user = userRepo.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
         UserProfileInfo userProfile = user.getUserProfileInfo();
@@ -123,14 +122,14 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        userRepo.save(user);
+        userRepository.save(user);
         return "User Profile Updated Successfully!";
 
     }
 
     @Override
     public UserInfoResData getUserProfileInfo(String username) {
-        User foundUser = userRepo.findByUsername(username)
+        User foundUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
         UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();
