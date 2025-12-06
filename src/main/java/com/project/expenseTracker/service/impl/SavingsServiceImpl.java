@@ -5,6 +5,7 @@ import com.project.expenseTracker.dto.request.SavingsReqData;
 import com.project.expenseTracker.dto.response.ResponseBaseData;
 import com.project.expenseTracker.dto.response.ResponseSuccessData;
 import com.project.expenseTracker.dto.response.SavingsDetailsData;
+import com.project.expenseTracker.dto.response.SavingsResData;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.model.Savings;
@@ -15,10 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 @Service
 public class SavingsServiceImpl implements SavingsService {
@@ -70,7 +71,7 @@ public class SavingsServiceImpl implements SavingsService {
         Savings savings = savingsRepo.findById(savingsId).orElseThrow(
                 () -> new ResourceNotFoundException("Savings not found")
         );
-        if(savings.getUserId().equals(currentUserId)){
+        if (!savings.getUserId().equals(currentUserId)) {
             throw new ForbiddenException("You are not authorized to view this income");
         }
 
@@ -84,7 +85,7 @@ public class SavingsServiceImpl implements SavingsService {
                 savingsRepo.findByUserIdAndMonthAndYear(currentUserId, month, year) : new ArrayList<>();
 
         List<SavingsDetailsData> detailsData = new ArrayList<>();
-        if(!savingsList.isEmpty()){
+        if (!savingsList.isEmpty()) {
             detailsData = savingsList.stream().map(Savings::toSavingsDetailsData).toList();
         }
 
@@ -100,5 +101,37 @@ public class SavingsServiceImpl implements SavingsService {
         savingsRepo.delete(savings);
 
         return new ResponseSuccessData("Savings deleted successfully!", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseBaseData getYearlyDetails(Long currentUserId, Integer year) {
+        List<Map<String, Object>> rows = (year != null)
+                ? savingsRepo.getYearlySavings(currentUserId, year)
+                : new ArrayList<>();
+        List<SavingsResData> savingsList = new ArrayList<>();
+        if (!rows.isEmpty()) {
+            savingsList = rows.stream()
+                    .map(row -> {
+                        SavingsResData savings = SavingsResData.builder()
+                                .month((Integer) row.get("month"))
+                                .year((Integer) row.get("year"))
+                                .totalAmount((BigDecimal) row.get("totalSavings"))
+                                .build();
+
+                        List<Savings> monthlyList = savingsRepo.findByUserIdAndMonthAndYear(
+                                currentUserId, savings.getMonth(), savings.getYear()
+                        );
+                        if (!monthlyList.isEmpty()) {
+                            savings.setDetails(monthlyList.stream()
+                                    .map(Savings::toSavingsDetailsData)
+                                    .toList());
+                        }
+
+                        return savings;
+                    }).toList();
+
+        }
+
+        return new ResponseSuccessData(savingsList, ResponseMessageConstants.DATA_FOUND, HttpStatus.FOUND);
     }
 }

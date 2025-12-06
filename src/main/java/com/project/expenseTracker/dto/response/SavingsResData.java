@@ -17,6 +17,6 @@ public class SavingsResData {
     private Integer month;
     private Integer year;
     private BigDecimal totalAmount;
-    private List<IncomeDetailsData> details;
+    private List<SavingsDetailsData> details;
 
 }

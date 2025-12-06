@@ -45,6 +45,13 @@ public class SavingsController {
         return ResponseEntity.ok(savingsService.getSavingsDetails(getCurrentUserId(session), month, year));
     }
 
+    @GetMapping(value = WebAPIUrlConstants.SAVINGS_YEARLY_DETAILS_API)
+    public ResponseEntity<Object> getYearlySavingsDetails(
+            @PathVariable Integer year,
+            HttpSession session) {
+        return ResponseEntity.ok(savingsService.getYearlyDetails(getCurrentUserId(session), year));
+    }
+
     @DeleteMapping(value = WebAPIUrlConstants.SAVINGS_BY_ID_API)
     public ResponseEntity<Object> deleteSavings(@PathVariable Long savingsId, HttpSession session) {
         return ResponseEntity.ok(savingsService.deleteSavings(getCurrentUserId(session), savingsId));
