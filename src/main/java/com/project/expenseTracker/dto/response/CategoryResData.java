@@ -15,10 +15,8 @@ import java.util.List;
 public class CategoryResData {
     private String categoryName;
     private String description;
+    // only for response
     private List<CategoryResData> subcategories = new ArrayList<>();
 
-    public CategoryResData(String categoryName, String description) {
-        this.categoryName = categoryName;
-        this.description = description;
-    }
+
 }

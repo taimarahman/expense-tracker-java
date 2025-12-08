@@ -24,6 +24,12 @@ public class SuccessResponse<T> implements ApiResponse {
         this.statusCode = status.value();
     }
 
+    private SuccessResponse(T data, String message) {
+        this.data = data;
+        this.message = message;
+        this.statusCode = HttpStatus.FOUND.value();
+    }
+
     private SuccessResponse(String message) {
         this.data = null;
         this.message = message;
@@ -36,6 +42,10 @@ public class SuccessResponse<T> implements ApiResponse {
 
     public static <T> SuccessResponse<T> of(String message, HttpStatus status) {
         return new SuccessResponse<>(message, status);
+    }
+
+    public static <T> SuccessResponse<T> of(T data, String message) {
+        return new SuccessResponse<>(data, message);
     }
 
     public static <T> SuccessResponse<T> of(String message) {

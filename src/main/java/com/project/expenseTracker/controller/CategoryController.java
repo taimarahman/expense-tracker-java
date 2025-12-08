@@ -3,6 +3,7 @@ package com.project.expenseTracker.controller;
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.CategoryDto;
+import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.service.CategoryService;
 import com.project.expenseTracker.service.UserService;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
 
     private final CategoryService categoryService;
-    private final UserService userService;
 
     private Long getCurrentUserId(HttpSession session) {
         Long userId = (Long) session.getAttribute("currentUserId");
@@ -29,13 +29,29 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> saveUpdateCategory(@RequestBody @Valid CategoryDto categoryReqData, HttpSession session) {
+    public ResponseEntity<ApiResponse> saveUpdateCategory(@RequestBody @Valid CategoryDto categoryReqData, HttpSession session) {
         return ResponseEntity.ok(categoryService.saveUpdateCategory(categoryReqData, getCurrentUserId(session)));
     }
 
     @GetMapping(value = WebAPIUrlConstants.CATEGORY_ID_WISE_DETAILS_API, produces = "application/json")
-    public ResponseEntity<Object> getIdWiseCategoryList(@PathVariable Long id, HttpSession session) {
-        return ResponseEntity.ok(categoryService.getIdWiseCategoryDetails(getCurrentUserId(session), id));
+    public ResponseEntity<ApiResponse> getIdWiseCategoryList(@PathVariable Long id, HttpSession session) {
+        return ResponseEntity.ok(categoryService.getCategoryDetailsById(getCurrentUserId(session), id));
     }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse> getAllParentCategory(HttpSession session) {
+        return ResponseEntity.ok(categoryService.getAllParentCategory(getCurrentUserId(session)));
+    }
+
+    @GetMapping(value = WebAPIUrlConstants.SUBCATEGORY_LIST_API)
+    public ResponseEntity<ApiResponse> getSubcategoryList(@PathVariable Long categoryId, HttpSession session) {
+        return ResponseEntity.ok(categoryService.getSubcategoryByParent(categoryId, getCurrentUserId(session)));
+    }
+
+    @GetMapping(value = WebAPIUrlConstants.CATEGORY_TREE_API)
+    public ResponseEntity<ApiResponse> getCategoryTree(HttpSession session) {
+        return ResponseEntity.ok(categoryService.getAllCategory(getCurrentUserId(session)));
+    }
+
 
 }

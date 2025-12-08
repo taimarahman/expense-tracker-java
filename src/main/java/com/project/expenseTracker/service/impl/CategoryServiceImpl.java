@@ -1,9 +1,7 @@
 package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.dto.CategoryDto;
-import com.project.expenseTracker.dto.response.CategoryResData;
-import com.project.expenseTracker.dto.response.ResponseBaseData;
-import com.project.expenseTracker.dto.response.ResponseSuccessData;
+import com.project.expenseTracker.dto.response.*;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.model.Category;
@@ -27,7 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
-    public ResponseBaseData saveUpdateCategory(CategoryDto reqData, Long currentUserId) {
+    public ApiResponse saveUpdateCategory(CategoryDto reqData, Long currentUserId) {
         // update
         if (reqData.getCategoryId() != null) {
             Category category = categoryRepository.findById(reqData.getCategoryId()).orElseThrow(
@@ -44,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
             category.setUpdatedBy(currentUserId);
             categoryRepository.save(category);
 
-            return new ResponseSuccessData("Category updated successfully!", HttpStatus.OK);
+            return SuccessResponse.of("Category updated successfully!");
         }
 
         Category category = Category.builder()
@@ -59,12 +57,12 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.save(category);
 
-        return new ResponseSuccessData("Category saved successfully!", HttpStatus.CREATED);
+        return SuccessResponse.of("Category saved successfully!", HttpStatus.CREATED);
     }
 
 
     @Override
-    public ResponseBaseData getIdWiseCategoryDetails(Long userId, Long categoryId) {
+    public ApiResponse getCategoryDetailsById(Long userId, Long categoryId) {
 
         Category category = categoryRepository.findById(categoryId).orElseThrow(
                 () -> new ResourceNotFoundException("Category not found")
@@ -74,53 +72,80 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ForbiddenException("You are not authorized to view this category");
         }
 
-        return new ResponseSuccessData(category.toCategoryDto(),
+        return SuccessResponse.of(category.toCategoryDto(),
                 "Category found successfully!", HttpStatus.FOUND);
     }
 
     @Override
-    public List<CategoryResData> getAllCategory(Long currentUserId) {
-        try {
-            List<CategoryResData> allCategories = new ArrayList<>();
-            List<Category> categories;
-            Long adminId = userRepository.findIdByUsername("admin");
+    public ApiResponse getAllCategory(Long currentUserId) {
+        List<CategoryResData> allCategories = new ArrayList<>();
+        List<Category> categories = categoryRepository.findAllByUserIdAndParentIdIsNull(currentUserId);
 
-            if (adminId.equals(currentUserId)) {
-                categories = categoryRepository.findByParentId(null);
-            } else {
-                categories = categoryRepository.findAllCategoryByUserId(currentUserId, adminId);
-            }
+        if (!categories.isEmpty()) {
+            allCategories = categories.stream().map(
+                    c -> {
+                        CategoryResData category = CategoryResData.builder()
+                                .categoryName(c.getName())
+                                .description(c.getDescription())
+                                .build();
 
-            if (categories.size() > 0) {
-                for (Category c : categories) {
-                    CategoryResData cr = new CategoryResData();
-                    List<Category> subcategories;
-
-                    if (adminId.equals(currentUserId)) {
-                        subcategories = categoryRepository.findByParentId(c.getCategoryId());
-                    } else {
-                        subcategories = categoryRepository.findByParentIdAndCreatedByIn(c.getCategoryId(), List.of(adminId, currentUserId));
-                    }
-
-                    if (subcategories.size() > 0) {
-
-                        cr.getSubcategories().addAll(
-                                subcategories.stream()
-                                        .map(sub -> CategoryResData.builder()
-                                                .categoryName(sub.getName())
-                                                .description(sub.getDescription())
-                                                .build())
-                                        .collect(Collectors.toList())
-                        );
-                    }
-                    allCategories.add(cr);
-                }
-                return allCategories;
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+                        List<Category> subcategories = categoryRepository.findByParentId(c.getCategoryId());
+                        category.setSubcategories(subcategories.stream().map(
+                                sub -> CategoryResData.builder()
+                                        .categoryName(sub.getName())
+                                        .description(sub.getDescription())
+                                        .build()).toList());
+                        return category;
+                    })
+                    .toList();
         }
-        return null;
+
+//        if (!categories.isEmpty()) {
+//            for (Category c : categories) {
+//                CategoryResData cr = new CategoryResData();
+//                List<Category> subcategories = categoryRepository.findByParentId(c.getCategoryId());
+//
+//                if (!subcategories.isEmpty()) {
+//
+//                    cr.getSubcategories().addAll(
+//                            subcategories.stream()
+//                                    .map(sub -> CategoryResData.builder()
+//                                            .categoryName(sub.getName())
+//                                            .description(sub.getDescription())
+//                                            .build())
+//                                    .toList()
+//                    );
+//                }
+//                allCategories.add(cr);
+//            }
+//        }
+        return SuccessResponse.of(allCategories, "Categories found successfully!");
+    }
+
+    @Override
+    public ApiResponse getAllParentCategory(Long currentUserId) {
+        List<Category> categoryList = categoryRepository.findAllCategoryByUserId(currentUserId);
+
+        List<CategoryDto> list = new ArrayList<>();
+        if(!categoryList.isEmpty()){
+            list = categoryList.stream().map(Category::toCategoryDto).toList();
+        }
+
+        return SuccessResponse.of(list, "Categories found successfully!");
+    }
+
+    @Override
+    public ApiResponse getSubcategoryByParent(Long categoryId, Long currentUserId) {
+        Category category = categoryRepository.findByCategoryIdAndUserId(categoryId, currentUserId)
+                .orElseThrow(()-> new ResourceNotFoundException("Category not found"));
+
+        List<Category> subcategories = categoryRepository.findByParentId(category.getCategoryId());
+        List<CategoryDto> responseList = new ArrayList<>();
+
+        if(!subcategories.isEmpty()){
+            responseList = subcategories.stream().map(Category::toCategoryDto).toList();
+        }
+        return SuccessResponse.of(responseList, "Subcategories found successfully!");
     }
 
 }

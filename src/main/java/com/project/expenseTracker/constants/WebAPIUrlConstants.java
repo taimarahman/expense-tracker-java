@@ -14,13 +14,9 @@ public class WebAPIUrlConstants {
 
     // Category-related APIs
     public static final String CATEGORY_API = BASE_API_URL + "/categories";
-    public static final String CATEGORY_ALL_DETAILS_API = "/all";
     public static final String CATEGORY_ID_WISE_DETAILS_API = "/{id}";
-    public static final String CATEGORY_CREATE_API = "/create";
-    public static final String CATEGORY_UPDATE_API = "/update/{id}";
-    public static final String CATEGORY_DELETE_API = "/DELETE/{id}";
-    public static final String CATEGORY_SUB_ADD_API = "/{categoryId}/subcategories/add";
-    public static final String CATEGORY_SUB_UPDATE_API = "/{categoryId}/subcategories/update/{subcategoryId}";
+    public static final String SUBCATEGORY_LIST_API = "/{categoryId}/subcategories";
+    public static final String CATEGORY_TREE_API = "/tree";
     public static final String CATEGORY_SUB_DELETE_API = "/{categoryId}/subcategories/delete/{subcategoryId}";
 
 
