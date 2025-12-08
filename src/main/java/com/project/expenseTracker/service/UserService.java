@@ -20,5 +20,5 @@ public interface UserService {
 
      Long findIdByUsername(String username);
 
-     String updateUserProfile(String username, UserProfileReqData userInfo) throws IOException;
+     ApiResponse updateUserProfile(String username, UserProfileReqData userInfo) throws IOException;
 }

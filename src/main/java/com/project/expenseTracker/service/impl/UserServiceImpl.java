@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String updateUserProfile(String username, UserProfileReqData reqData) throws IOException {
+    public ApiResponse updateUserProfile(String username, UserProfileReqData reqData) throws IOException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
@@ -128,8 +128,7 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.save(user);
-        return "User Profile Updated Successfully!";
-
+        return SuccessResponse.of("User Profile Updated Successfully!");
     }
 
     @Override

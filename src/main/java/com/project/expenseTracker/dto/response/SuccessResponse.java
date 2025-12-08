@@ -24,12 +24,22 @@ public class SuccessResponse<T> implements ApiResponse {
         this.statusCode = status.value();
     }
 
+    private SuccessResponse(String message) {
+        this.data = null;
+        this.message = message;
+        this.statusCode = HttpStatus.OK.value();
+    }
+
     public static <T> SuccessResponse<T> of(T data, String message, HttpStatus status) {
         return new SuccessResponse<>(data, message, status);
     }
 
     public static <T> SuccessResponse<T> of(String message, HttpStatus status) {
         return new SuccessResponse<>(message, status);
+    }
+
+    public static <T> SuccessResponse<T> of(String message) {
+        return new SuccessResponse<>(message);
     }
 
     @Override public Object getData() { return data; }

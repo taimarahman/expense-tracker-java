@@ -6,7 +6,6 @@ import com.project.expenseTracker.dto.request.UserInfoReqData;
 import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ApiResponse;
-import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.exception.ForbiddenException;
@@ -41,30 +40,29 @@ public class UserController {
         session.setAttribute("currentUserId", loggedUser.getUserId());
         session.setAttribute("currentUser", loggedUser.getUsername());
 
-        return ResponseEntity.ok(SuccessResponse.of("User login successfully", HttpStatus.OK));
+        return ResponseEntity.ok(SuccessResponse.of("User login successfully"));
     }
 
     @PostMapping(value = WebAPIUrlConstants.USER_PROFILE_INFO_API,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateUserProfile(@PathVariable String username,
-                                                    @Valid @ModelAttribute UserProfileReqData userProfileInfo) {
+    public ResponseEntity<ApiResponse> updateUserProfile(@PathVariable String username,
+                                                         @Valid @ModelAttribute UserProfileReqData userProfileInfo) {
         try {
-            String successMsg = userService.updateUserProfile(username, userProfileInfo);
-
-            return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
+            return ResponseEntity.ok(userService.updateUserProfile(username, userProfileInfo));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new RuntimeException("Something went wrong", e);
         }
     }
 
     @GetMapping(value = WebAPIUrlConstants.USER_PROFILE_INFO_API, produces = "application/json")
-    public ResponseEntity<Object> getUserProfileInfo(@PathVariable String username, HttpSession session) {
+    public ResponseEntity<ApiResponse> getUserProfileInfo(@PathVariable String username, HttpSession session) {
         if (!session.getAttribute("currentUser").equals(username)) {
             throw new ForbiddenException(ResponseMessageConstants.UNAUTHORIZED_USER);
         }
         UserInfoResData userInfo = userService.getUserProfileInfo(username);
-        return ResponseHandler.generateResponse(userInfo, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
+        return ResponseEntity.ok(
+                SuccessResponse.of(userInfo, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK));
     }
 }
