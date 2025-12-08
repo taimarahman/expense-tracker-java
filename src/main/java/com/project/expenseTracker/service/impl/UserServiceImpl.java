@@ -3,6 +3,8 @@ package com.project.expenseTracker.service.impl;
 import com.project.expenseTracker.dto.request.UserInfoReqData;
 import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
+import com.project.expenseTracker.dto.response.ApiResponse;
+import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.exception.EmailAlreadyExistsException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
@@ -14,6 +16,7 @@ import com.project.expenseTracker.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -39,7 +42,7 @@ public class UserServiceImpl implements UserService {
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp");
 
     @Override
-    public void register(UserInfoReqData user) {
+    public ApiResponse register(UserInfoReqData user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new UsernameAlreadyExistException("Username already exists");
         }
@@ -64,6 +67,8 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         userRepository.save(newUser);
+
+        return SuccessResponse.of("Successfully registered user!", HttpStatus.CREATED);
     }
 
     @Override

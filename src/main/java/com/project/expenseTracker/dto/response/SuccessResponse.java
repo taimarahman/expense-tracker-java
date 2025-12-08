@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus;
 public class SuccessResponse<T> implements ApiResponse {
 
     private final boolean success = true;
+    private final int statusCode;
     private final String message;
     private final T data;
-    private final int statusCode;
 
     private SuccessResponse(T data, String message, HttpStatus status) {
         this.data = data;
@@ -24,7 +24,6 @@ public class SuccessResponse<T> implements ApiResponse {
         this.statusCode = status.value();
     }
 
-    // THE WINNERS
     public static <T> SuccessResponse<T> of(T data, String message, HttpStatus status) {
         return new SuccessResponse<>(data, message, status);
     }

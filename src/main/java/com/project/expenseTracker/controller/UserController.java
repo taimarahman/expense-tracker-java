@@ -1,12 +1,13 @@
 package com.project.expenseTracker.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.request.UserInfoReqData;
 import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
+import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.ResponseHandler;
+import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.model.User;
@@ -20,40 +21,27 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
-
 @RestController
 @RequestMapping(WebAPIUrlConstants.USER_API)
 public class UserController {
-
-    private final ObjectMapper objectMapper;
-
-    public UserController() {
-        this.objectMapper = new ObjectMapper();
-    }
 
     @Autowired
     UserService userService;
 
     @PostMapping(WebAPIUrlConstants.USER_REGISTER_API)
-    public ResponseEntity<Object> register(@Valid @RequestBody UserInfoReqData user) {
-        userService.register(user);
-        return ResponseHandler.generateResponse("Successfully registered user!", HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse> register(@Valid @RequestBody UserInfoReqData user) {
+        return ResponseEntity.ok(userService.register(user));
     }
 
     @PostMapping(value = WebAPIUrlConstants.USER_LOGIN_API, produces = "application/json")
     public ResponseEntity<Object> login(@Valid @RequestBody UserLoginReqData reqData, HttpServletRequest req) {
         User loggedUser = userService.authenticateLogin(reqData);
 
-        if (Objects.nonNull(loggedUser)) {
-            HttpSession session = req.getSession(true);
-            session.setAttribute("currentUserId", loggedUser.getUserId());
-            session.setAttribute("currentUser", loggedUser.getUsername());
-            return ResponseHandler.generateResponse("User login successfully", HttpStatus.OK);
-        } else {
-            return ResponseHandler.generateResponse(null, "Login Failure! Username or Password incorrect", HttpStatus.BAD_REQUEST);
-        }
+        HttpSession session = req.getSession(true);
+        session.setAttribute("currentUserId", loggedUser.getUserId());
+        session.setAttribute("currentUser", loggedUser.getUsername());
 
+        return ResponseEntity.ok(SuccessResponse.of("User login successfully", HttpStatus.OK));
     }
 
     @PostMapping(value = WebAPIUrlConstants.USER_PROFILE_INFO_API,
