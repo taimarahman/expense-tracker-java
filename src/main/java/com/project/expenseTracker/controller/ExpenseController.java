@@ -2,133 +2,64 @@ package com.project.expenseTracker.controller;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
-import com.project.expenseTracker.dto.request.ExpenseInfoReqData;
+import com.project.expenseTracker.dto.ExpenseDto;
+import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.ResponseHandler;
+import com.project.expenseTracker.dto.response.SuccessResponse;
+import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.model.Expense;
 import com.project.expenseTracker.service.ExpenseService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(WebAPIUrlConstants.EXPENSE_API)
 public class ExpenseController {
 
-    @Autowired
-    private ExpenseService expenseService;
+    private final ExpenseService expenseService;
 
-    @PostMapping(value = WebAPIUrlConstants.EXPENSE_CREATE_API, produces = "application/json")
-    public ResponseEntity<Object> addExpense(@RequestBody ExpenseInfoReqData reqData, HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
-
-            if(Objects.nonNull(currentUserId)){
-                String successMsg = expenseService.addExpense(reqData, currentUserId);
-
-                if(Objects.nonNull(successMsg) && !successMsg.isEmpty()){
-                    return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
-                } else
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
-            } else {
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
+    private Long getCurrentUserId(HttpSession session) {
+        Long userId = (Long) session.getAttribute("currentUserId");
+        if (userId == null) {
+            throw new ForbiddenException(ResponseMessageConstants.UNAUTHORIZED_USER);
         }
+        return userId;
     }
 
-    @PostMapping(value = WebAPIUrlConstants.EXPENSE_DELETE_API, produces = "application/json")
-    public ResponseEntity<Object> deleteExpense(@PathVariable Long id, HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
-
-            if(Objects.nonNull(currentUserId)){
-                expenseService.deleteExpense(id, currentUserId);
-                return ResponseHandler.generateResponse(ResponseMessageConstants.DELETE_SUCCESS, HttpStatus.OK);
-            } else
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
-
-        }
+    @PostMapping
+    public ResponseEntity<Object> saveUpdateExpense(@RequestBody ExpenseDto reqData, HttpSession session) {
+        return ResponseEntity.ok(expenseService.saveUpdateExpense(reqData, getCurrentUserId(session)));
     }
 
-    @PostMapping(value = WebAPIUrlConstants.EXPENSE_UPDATE_API, produces = "application/json")
-    public ResponseEntity<Object> updateExpense(@RequestBody Expense reqData, HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
+    @GetMapping(value = WebAPIUrlConstants.EXPENSE_BY_ID_API, produces = "application/json")
+    public ResponseEntity<Object> getExpenseById(@PathVariable Long expenseId, HttpSession session) {
+        return ResponseEntity.ok(expenseService.getExpenseById(expenseId, getCurrentUserId(session)));
+    }
 
-            if(Objects.nonNull(currentUserId)){
-                String successMsg = expenseService.updateExpense(reqData, currentUserId);
-
-                if(Objects.nonNull(successMsg) && !successMsg.isEmpty()){
-                    return ResponseHandler.generateResponse(successMsg, HttpStatus.OK);
-                } else
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
-
-            } else
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
-        }
+    @DeleteMapping(value = WebAPIUrlConstants.EXPENSE_BY_ID_API, produces = "application/json")
+    public ResponseEntity<Object> deleteExpense(@PathVariable Long expenseId, HttpSession session) {
+        return ResponseEntity.ok(expenseService.deleteExpense(expenseId, getCurrentUserId(session)));
     }
 
     @GetMapping(value = WebAPIUrlConstants.EXPENSE_LIST_API, produces = "application/json")
-    public ResponseEntity<Object> getExpenseList(HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
-
-            if(Objects.nonNull(currentUserId)){
-                List<Expense> list = expenseService.getExpenseList(currentUserId);
-
-                if(Objects.nonNull(list) && list.size() > 0){
-                    return ResponseHandler.generateResponse(list, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
-                } else
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
-            } else
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<ApiResponse> getExpenseList(HttpSession session) {
+        List<Expense> list = expenseService.getExpenseList(getCurrentUserId(session));
+        return ResponseEntity.ok(SuccessResponse.of(list, ResponseMessageConstants.DATA_FOUND));
     }
 
-    @GetMapping(value = WebAPIUrlConstants.EXPENSE_MONTHLY_LIST_API, produces = "application/json")
-    public ResponseEntity<Object> getMonthlyExpenseList(@RequestParam(name="month", required = false, defaultValue = "-1") String month, @RequestParam(name="year", required = false) String year, HttpSession session) {
-        try {
-            Long currentUserId = (Long) session.getAttribute("currentUserId");
-
-            if(Objects.nonNull(currentUserId)){
-
-                List<Expense> list = expenseService.getMonthlyExpenseList(currentUserId, month, year);
-
-                if(Objects.nonNull(list) && list.size() > 0){
-                    return ResponseHandler.generateResponse(list, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK);
-                } else
-                    return ResponseHandler.generateResponse(ResponseMessageConstants.ERROR, HttpStatus.OK);
-            } else
-                return ResponseHandler.generateResponse(ResponseMessageConstants.UNAUTHORIZED_USER, HttpStatus.UNAUTHORIZED);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseHandler.generateResponse(ResponseMessageConstants.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
-
-        }
+    @GetMapping
+    public ResponseEntity<Object> getMonthlyExpenseList(@RequestParam(name="month") Integer month,
+                                                        @RequestParam(name="year") Integer year, HttpSession session) {
+        return ResponseEntity.ok(SuccessResponse.of(
+                expenseService.getMonthlyExpenseList(getCurrentUserId(session), month, year),
+                ResponseMessageConstants.DATA_FOUND));
     }
-
 
 }

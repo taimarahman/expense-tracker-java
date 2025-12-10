@@ -1,70 +1,92 @@
 package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
-import com.project.expenseTracker.dto.request.ExpenseInfoReqData;
+import com.project.expenseTracker.dto.ExpenseDto;
+import com.project.expenseTracker.dto.response.ApiResponse;
+import com.project.expenseTracker.dto.response.SuccessResponse;
+import com.project.expenseTracker.exception.ForbiddenException;
+import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.model.Expense;
 import com.project.expenseTracker.repository.ExpenseRepository;
+import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.ExpenseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ExpenseServiceImpl implements ExpenseService {
 
-    @Autowired
-    private ExpenseRepository expenseRepo;
+    private final ExpenseRepository expenseRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public String addExpense(ExpenseInfoReqData reqData, Long currentUserId) {
-        try {
-            if(reqData.getAmount().compareTo(BigDecimal.ZERO) > 0){
-                Expense newExpense = new Expense(
-                        reqData.getAmount(), reqData.getDate(), reqData.getExpenseCategory(), currentUserId,
-                        reqData.getShop(), reqData.getLocation(), reqData.getDescription()
-                );
-
-                expenseRepo.save(newExpense);
-
-                return ResponseMessageConstants.SAVE_SUCCESS;
-            } else
-                return "Amount must be greater than 0";
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    public ApiResponse saveUpdateExpense(ExpenseDto reqData, Long currentUserId) {
+        if (!userRepository.existsById(currentUserId)) {
+            throw new ResourceNotFoundException("User not found.");
         }
-        return null;
+
+        // update
+        if (reqData.getExpenseId() != null) {
+            Expense expense = expenseRepository.findById(reqData.getExpenseId()).orElseThrow(
+                    () -> new ResourceNotFoundException("Expense not found")
+            );
+
+            if (!expense.getUserId().equals(currentUserId)) {
+                throw new ForbiddenException("You are not authorized to update this expense.");
+            }
+
+            expense.setAmount(reqData.getAmount());
+            expense.setCategoryId(reqData.getCategoryId());
+            expense.setDate(reqData.getDate());
+            expense.setTime(reqData.getTime());
+            expense.setDescription(reqData.getDescription());
+            expenseRepository.save(expense);
+
+            return SuccessResponse.of("Expense updated successfully!", HttpStatus.OK);
+        }
+
+        Expense expense = Expense.builder()
+                .amount(reqData.getAmount())
+                .categoryId(reqData.getCategoryId())
+                .date(reqData.getDate())
+                .time(reqData.getTime())
+                .description(reqData.getDescription())
+                .userId(currentUserId)
+                .build();
+
+        expenseRepository.save(expense);
+        return SuccessResponse.of("Expense saved successfully!", HttpStatus.CREATED);
     }
 
     @Override
-    public void deleteExpense(Long id, Long currentUserId) {
-        try {
-            Optional<Expense> optionalExpense = expenseRepo.findById(id);
+    public ApiResponse deleteExpense(Long expenseId, Long currentUserId) {
+        Expense expense = expenseRepository.findById(expenseId).orElseThrow(
+                () -> new ResourceNotFoundException("Expense not found")
+        );
 
-            if(optionalExpense.isPresent()){
-                Expense expense = optionalExpense.get();
-                if(expense.getUserId().equals(currentUserId)){
-                    expenseRepo.delete(expense);
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (!expense.getUserId().equals(currentUserId)) {
+            throw new ForbiddenException("You are not authorized to delete this expense.");
         }
+        expenseRepository.delete(expense);
+
+        return SuccessResponse.of("Expense deleted successfully!");
     }
 
     @Override
     public String updateExpense(Expense reqData, Long currentUserId) {
         try {
-            Optional<Expense> optionalExpense = expenseRepo.findById(reqData.getExpenseId());
+            Optional<Expense> optionalExpense = expenseRepository.findById(reqData.getExpenseId());
 
-            if(optionalExpense.isPresent()){
+            if (optionalExpense.isPresent()) {
                 Expense expense = optionalExpense.get();
-                if(expense.getUserId().equals(currentUserId)){
-                    expenseRepo.save(reqData);
+                if (expense.getUserId().equals(currentUserId)) {
+                    expenseRepository.save(reqData);
 
                     return ResponseMessageConstants.UPDATE_SUCCESS;
                 }
@@ -77,32 +99,29 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public List<Expense> getExpenseList(Long currentUserId) {
-        try {
-            List<Expense> expenseList = new ArrayList<>();
-            expenseList = expenseRepo.findAllByUserId(currentUserId);
-
-            return expenseList;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
+        return expenseRepository.findAllByUserId(currentUserId);
     }
 
     @Override
-    public List<Expense> getMonthlyExpenseList(Long currentUserId, String month, String year) {
-        try {
+    public List<ExpenseDto> getMonthlyExpenseList(Long currentUserId, Integer month, Integer year) {
 
-            Integer reqMonth = month.equals("null") ? LocalDate.now().getMonthValue() : Integer.parseInt(month);
-            Integer reqYear = year.equals("null") ? LocalDate.now().getYear() : Integer.parseInt(year);
+        List<Expense> expenseList = (month!= null && year!= null)
+                ? expenseRepository.findAllByUserIdAndMonth(currentUserId, month, year)
+                : List.of();
 
-            List<Expense> expenseList;
-            expenseList = expenseRepo.findAllByUserIdAndMonth(currentUserId, reqMonth, reqYear);
+        return expenseList.stream().map(Expense::toExpenseDto).toList();
 
-            return expenseList;
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    }
+
+    @Override
+    public ApiResponse getExpenseById(Long expenseId, Long currentUserId) {
+        Expense expense = expenseRepository.findById(expenseId).orElseThrow(
+                () -> new ResourceNotFoundException("Expense not found")
+        );
+        if (!expense.getUserId().equals(currentUserId)) {
+            throw new ForbiddenException("You are not authorized to view this expense.");
         }
 
-        return null;
+        return SuccessResponse.of(expense.toExpenseDto(), ResponseMessageConstants.DATA_FOUND, HttpStatus.FOUND);
     }
 }

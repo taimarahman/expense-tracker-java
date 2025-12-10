@@ -1,18 +1,21 @@
 package com.project.expenseTracker.service;
 
-import com.project.expenseTracker.dto.request.ExpenseInfoReqData;
+import com.project.expenseTracker.dto.ExpenseDto;
+import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.model.Expense;
 
 import java.util.List;
 
 public interface ExpenseService {
-    String addExpense(ExpenseInfoReqData reqData, Long currentUserId);
+    ApiResponse saveUpdateExpense(ExpenseDto reqData, Long currentUserId);
 
-    void deleteExpense(Long id, Long currentUserId);
+    ApiResponse deleteExpense(Long expenseId, Long currentUserId);
 
     String updateExpense(Expense reqData, Long currentUserId);
 
     List<Expense> getExpenseList(Long currentUserId);
 
-    List<Expense> getMonthlyExpenseList(Long currentUserId, String reqMonth, String reqYear);
+    List<ExpenseDto> getMonthlyExpenseList(Long currentUserId, Integer reqMonth, Integer reqYear);
+
+    ApiResponse getExpenseById(Long expenseId, Long currentUserId);
 }

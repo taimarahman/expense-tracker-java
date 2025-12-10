@@ -23,11 +23,8 @@ public class WebAPIUrlConstants {
 
     // Expense-related APIs
     public static final String EXPENSE_API = BASE_API_URL + "/expense";
-    public static final String EXPENSE_CREATE_API = "/add";
-    public static final String EXPENSE_UPDATE_API = "/update";
-    public static final String EXPENSE_DELETE_API = "/delete/{id}";
+    public static final String EXPENSE_BY_ID_API = "/{expenseId}";
     public static final String EXPENSE_LIST_API = "/list";
-    public static final String EXPENSE_MONTHLY_LIST_API = "/monthly-list";
 
 //  Income-related APIs
     public static final String INCOME_API = BASE_API_URL + "/income";
