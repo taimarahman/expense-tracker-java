@@ -1,7 +1,6 @@
-package com.project.expenseTracker.dto.request;
+package com.project.expenseTracker.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -11,7 +10,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SavingsReqData {
+public class SavingsDto {
 
     private Long savingsId;
 

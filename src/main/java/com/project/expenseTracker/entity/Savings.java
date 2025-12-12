@@ -1,6 +1,6 @@
 package com.project.expenseTracker.entity;
 
-import com.project.expenseTracker.dto.response.SavingsDetailsData;
+import com.project.expenseTracker.dto.SavingsDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,8 +46,8 @@ public class Savings {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public SavingsDetailsData toSavingsDetailsData() {
-        return SavingsDetailsData.builder()
+    public SavingsDto toSavingsDto() {
+        return SavingsDto.builder()
                 .savingsId(this.getSavingsId())
                 .amount(this.getAmount())
                 .title(this.getTitle())

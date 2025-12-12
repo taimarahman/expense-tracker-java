@@ -1,9 +1,8 @@
 package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
-import com.project.expenseTracker.dto.request.SavingsReqData;
+import com.project.expenseTracker.dto.SavingsDto;
 import com.project.expenseTracker.dto.response.ApiResponse;
-import com.project.expenseTracker.dto.response.SavingsDetailsData;
 import com.project.expenseTracker.dto.response.SavingsResData;
 import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.entity.Savings;
@@ -30,7 +29,7 @@ public class SavingsServiceImpl implements SavingsService {
     private final UserRepository userRepository;
 
     @Override
-    public ApiResponse saveUpdateSavings(SavingsReqData reqData, Long currentUserId) {
+    public ApiResponse saveUpdateSavings(SavingsDto reqData, Long currentUserId) {
 
         if (reqData.getSavingsId() != null) {
             Savings savings = savingsRepository.findById(reqData.getSavingsId()).orElseThrow(
@@ -54,7 +53,7 @@ public class SavingsServiceImpl implements SavingsService {
         User currentUser = userRepository.findById(currentUserId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found"));
 
-        Savings savings = new Savings().builder()
+        Savings savings = Savings.builder()
                 .amount(reqData.getAmount())
                 .title(reqData.getTitle())
                 .month(reqData.getMonth())
@@ -77,7 +76,7 @@ public class SavingsServiceImpl implements SavingsService {
             throw new ForbiddenException("You are not authorized to view this income");
         }
 
-        return SuccessResponse.of(savings.toSavingsDetailsData(), "Savings found successfully!");
+        return SuccessResponse.of(savings.toSavingsDto(), "Savings found successfully!");
     }
 
     @Override
@@ -86,9 +85,9 @@ public class SavingsServiceImpl implements SavingsService {
         List<Savings> savingsList = (month != null && year != null) ?
                 savingsRepository.findByUserIdAndMonthAndYear(currentUserId, month, year) : new ArrayList<>();
 
-        List<SavingsDetailsData> detailsData = new ArrayList<>();
+        List<SavingsDto> detailsData = new ArrayList<>();
         if (!savingsList.isEmpty()) {
-            detailsData = savingsList.stream().map(Savings::toSavingsDetailsData).toList();
+            detailsData = savingsList.stream().map(Savings::toSavingsDto).toList();
         }
 
         return SuccessResponse.of(detailsData, ResponseMessageConstants.DATA_FOUND);
@@ -125,7 +124,7 @@ public class SavingsServiceImpl implements SavingsService {
                         );
                         if (!monthlyList.isEmpty()) {
                             savings.setDetails(monthlyList.stream()
-                                    .map(Savings::toSavingsDetailsData)
+                                    .map(Savings::toSavingsDto)
                                     .toList());
                         }
 

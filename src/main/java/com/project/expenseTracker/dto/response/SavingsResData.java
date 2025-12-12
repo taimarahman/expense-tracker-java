@@ -1,5 +1,6 @@
 package com.project.expenseTracker.dto.response;
 
+import com.project.expenseTracker.dto.SavingsDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,6 @@ public class SavingsResData {
     private Integer month;
     private Integer year;
     private BigDecimal totalAmount;
-    private List<SavingsDetailsData> details;
+    private List<SavingsDto> details;
 
 }

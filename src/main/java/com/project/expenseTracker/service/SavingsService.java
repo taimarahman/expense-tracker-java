@@ -1,10 +1,10 @@
 package com.project.expenseTracker.service;
 
-import com.project.expenseTracker.dto.request.SavingsReqData;
+import com.project.expenseTracker.dto.SavingsDto;
 import com.project.expenseTracker.dto.response.ApiResponse;
 
 public interface SavingsService {
-    ApiResponse saveUpdateSavings(SavingsReqData reqData, Long currentUserId);
+    ApiResponse saveUpdateSavings(SavingsDto reqData, Long currentUserId);
 
     ApiResponse getSavingsDetails(Long currentUserId, Long savingsId);
 

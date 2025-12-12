@@ -2,13 +2,12 @@ package com.project.expenseTracker.controller;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
-import com.project.expenseTracker.dto.request.SavingsReqData;
+import com.project.expenseTracker.dto.SavingsDto;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.service.SavingsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +27,7 @@ public class SavingsController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> saveUpdateSavings(@Valid @RequestBody SavingsReqData reqData, HttpSession session) {
+    public ResponseEntity<Object> saveUpdateSavings(@Valid @RequestBody SavingsDto reqData, HttpSession session) {
         return ResponseEntity.ok(savingsService.saveUpdateSavings(reqData, getCurrentUserId(session)));
     }
 
