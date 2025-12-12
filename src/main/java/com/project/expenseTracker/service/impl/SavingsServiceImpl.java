@@ -2,13 +2,14 @@ package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.dto.request.SavingsReqData;
-import com.project.expenseTracker.dto.response.ResponseBaseData;
-import com.project.expenseTracker.dto.response.ResponseSuccessData;
+import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.SavingsDetailsData;
 import com.project.expenseTracker.dto.response.SavingsResData;
+import com.project.expenseTracker.dto.response.SuccessResponse;
+import com.project.expenseTracker.entity.Savings;
+import com.project.expenseTracker.entity.User;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
-import com.project.expenseTracker.entity.Savings;
 import com.project.expenseTracker.repository.SavingsRepository;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.SavingsService;
@@ -29,15 +30,15 @@ public class SavingsServiceImpl implements SavingsService {
     private final UserRepository userRepository;
 
     @Override
-    public ResponseBaseData saveUpdateSavings(SavingsReqData reqData, Long currentUserId) {
-
-        if (!userRepository.existsById(currentUserId)) {
-            throw new ResourceNotFoundException("User not found:");
-        }
+    public ApiResponse saveUpdateSavings(SavingsReqData reqData, Long currentUserId) {
 
         if (reqData.getSavingsId() != null) {
             Savings savings = savingsRepository.findById(reqData.getSavingsId()).orElseThrow(
                     () -> new ResourceNotFoundException("Savings not found"));
+
+            if (!savings.getUser().getUserId().equals(currentUserId)) {
+                throw new ForbiddenException("You are not authorized to update this savings");
+            }
 
             if (!savings.getMonth().equals(reqData.getMonth()) || !savings.getYear().equals(reqData.getYear())) {
                 throw new ForbiddenException("Month or year cannot be changed.");
@@ -47,37 +48,40 @@ public class SavingsServiceImpl implements SavingsService {
             savings.setTitle(reqData.getTitle());
             savingsRepository.save(savings);
 
-            return new ResponseSuccessData("Savings updated successfully!", HttpStatus.OK);
+            return SuccessResponse.of("Savings updated successfully!");
         }
+        // create
+        User currentUser = userRepository.findById(currentUserId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found"));
 
         Savings savings = new Savings().builder()
                 .amount(reqData.getAmount())
                 .title(reqData.getTitle())
                 .month(reqData.getMonth())
                 .year(reqData.getYear())
-                .userId(currentUserId)
+                .user(currentUser)
                 .build();
 
         savingsRepository.save(savings);
 
-        return new ResponseSuccessData("Savings saved successfully!", HttpStatus.CREATED);
+        return SuccessResponse.of("Savings saved successfully!", HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseBaseData getSavingsDetails(Long currentUserId, Long savingsId) {
+    public ApiResponse getSavingsDetails(Long currentUserId, Long savingsId) {
 
         Savings savings = savingsRepository.findById(savingsId).orElseThrow(
                 () -> new ResourceNotFoundException("Savings not found")
         );
-        if (!savings.getUserId().equals(currentUserId)) {
+        if (!savings.getUser().getUserId().equals(currentUserId)) {
             throw new ForbiddenException("You are not authorized to view this income");
         }
 
-        return new ResponseSuccessData(savings.toSavingsDetailsData(), "Savings found successfully!", HttpStatus.FOUND);
+        return SuccessResponse.of(savings.toSavingsDetailsData(), "Savings found successfully!");
     }
 
     @Override
-    public ResponseBaseData getSavingsDetails(Long currentUserId, Integer month, Integer year) {
+    public ApiResponse getSavingsDetails(Long currentUserId, Integer month, Integer year) {
 
         List<Savings> savingsList = (month != null && year != null) ?
                 savingsRepository.findByUserIdAndMonthAndYear(currentUserId, month, year) : new ArrayList<>();
@@ -87,22 +91,22 @@ public class SavingsServiceImpl implements SavingsService {
             detailsData = savingsList.stream().map(Savings::toSavingsDetailsData).toList();
         }
 
-        return new ResponseSuccessData(detailsData, ResponseMessageConstants.DATA_FOUND, HttpStatus.FOUND);
+        return SuccessResponse.of(detailsData, ResponseMessageConstants.DATA_FOUND);
 
     }
 
     @Override
-    public ResponseBaseData deleteSavings(Long currentUserId, Long savingsId) {
+    public ApiResponse deleteSavings(Long currentUserId, Long savingsId) {
         Savings savings = savingsRepository.findById(savingsId).orElseThrow(
                 () -> new ResourceNotFoundException("Savings not found"));
 
         savingsRepository.delete(savings);
 
-        return new ResponseSuccessData("Savings deleted successfully!", HttpStatus.OK);
+        return SuccessResponse.of("Savings deleted successfully!");
     }
 
     @Override
-    public ResponseBaseData getYearlyDetails(Long currentUserId, Integer year) {
+    public ApiResponse getYearlyDetails(Long currentUserId, Integer year) {
         List<Map<String, Object>> rows = (year != null)
                 ? savingsRepository.getYearlySavings(currentUserId, year)
                 : new ArrayList<>();
@@ -130,6 +134,6 @@ public class SavingsServiceImpl implements SavingsService {
 
         }
 
-        return new ResponseSuccessData(savingsList, ResponseMessageConstants.DATA_FOUND, HttpStatus.FOUND);
+        return SuccessResponse.of(savingsList, ResponseMessageConstants.DATA_FOUND);
     }
 }

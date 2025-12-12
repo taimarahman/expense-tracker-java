@@ -6,7 +6,6 @@ import com.project.expenseTracker.dto.CategoryDto;
 import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.service.CategoryService;
-import com.project.expenseTracker.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

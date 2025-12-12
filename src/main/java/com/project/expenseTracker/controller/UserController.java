@@ -14,6 +14,7 @@ import com.project.expenseTracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,11 +22,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(WebAPIUrlConstants.USER_API)
 public class UserController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
     @PostMapping(WebAPIUrlConstants.USER_REGISTER_API)
     public ResponseEntity<ApiResponse> register(@Valid @RequestBody UserInfoReqData user) {
@@ -33,7 +34,7 @@ public class UserController {
     }
 
     @PostMapping(value = WebAPIUrlConstants.USER_LOGIN_API, produces = "application/json")
-    public ResponseEntity<Object> login(@Valid @RequestBody UserLoginReqData reqData, HttpServletRequest req) {
+    public ResponseEntity<ApiResponse> login(@Valid @RequestBody UserLoginReqData reqData, HttpServletRequest req) {
         User loggedUser = userService.authenticateLogin(reqData);
 
         HttpSession session = req.getSession(true);

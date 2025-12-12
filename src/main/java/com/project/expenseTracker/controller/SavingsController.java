@@ -7,16 +7,17 @@ import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.service.SavingsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(WebAPIUrlConstants.SAVINGS_API)
 public class SavingsController {
 
-    @Autowired
-    SavingsService savingsService;
+    private final SavingsService savingsService;
 
     private Long getCurrentUserId(HttpSession session) {
         Long userId = (Long) session.getAttribute("currentUserId");

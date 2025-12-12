@@ -31,17 +31,17 @@ public class ExpenseController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> saveUpdateExpense(@RequestBody ExpenseDto reqData, HttpSession session) {
+    public ResponseEntity<ApiResponse> saveUpdateExpense(@RequestBody ExpenseDto reqData, HttpSession session) {
         return ResponseEntity.ok(expenseService.saveUpdateExpense(reqData, getCurrentUserId(session)));
     }
 
     @GetMapping(value = WebAPIUrlConstants.EXPENSE_BY_ID_API, produces = "application/json")
-    public ResponseEntity<Object> getExpenseById(@PathVariable Long expenseId, HttpSession session) {
+    public ResponseEntity<ApiResponse> getExpenseById(@PathVariable Long expenseId, HttpSession session) {
         return ResponseEntity.ok(expenseService.getExpenseById(expenseId, getCurrentUserId(session)));
     }
 
     @DeleteMapping(value = WebAPIUrlConstants.EXPENSE_BY_ID_API, produces = "application/json")
-    public ResponseEntity<Object> deleteExpense(@PathVariable Long expenseId, HttpSession session) {
+    public ResponseEntity<ApiResponse> deleteExpense(@PathVariable Long expenseId, HttpSession session) {
         return ResponseEntity.ok(expenseService.deleteExpense(expenseId, getCurrentUserId(session)));
     }
 
@@ -52,7 +52,7 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getMonthlyExpenseList(@RequestParam(name="month") Integer month,
+    public ResponseEntity<ApiResponse> getMonthlyExpenseList(@RequestParam(name="month") Integer month,
                                                         @RequestParam(name="year") Integer year, HttpSession session) {
         return ResponseEntity.ok(SuccessResponse.of(
                 expenseService.getMonthlyExpenseList(getCurrentUserId(session), month, year),

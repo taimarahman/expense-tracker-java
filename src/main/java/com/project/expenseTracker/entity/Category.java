@@ -40,8 +40,9 @@ public class Category {
 
     private Long parentId;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private Long createdBy;

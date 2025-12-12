@@ -2,19 +2,19 @@ package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.dto.request.IncomeReqData;
+import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.IncomeDetailsData;
 import com.project.expenseTracker.dto.response.IncomeResData;
-import com.project.expenseTracker.dto.response.ResponseBaseData;
-import com.project.expenseTracker.dto.response.ResponseSuccessData;
+import com.project.expenseTracker.dto.response.SuccessResponse;
+import com.project.expenseTracker.entity.Income;
+import com.project.expenseTracker.entity.User;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
-import com.project.expenseTracker.entity.Income;
 import com.project.expenseTracker.repository.IncomeRepository;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.IncomeService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -31,15 +31,12 @@ public class IncomeServiceImpl implements IncomeService {
     private final UserRepository userRepository;
 
     @Override
-    public String saveUpdateMonthlyIncome(IncomeReqData reqData, HttpSession session) {
+    public ApiResponse saveUpdateMonthlyIncome(IncomeReqData reqData, HttpSession session) {
 
         Long currentUserId = (Long) session.getAttribute("currentUserId");
 
         if (currentUserId == null) {
             throw new ForbiddenException(ResponseMessageConstants.UNAUTHORIZED_USER);
-        }
-        if (!userRepository.existsById(currentUserId)) {
-            throw new ResourceNotFoundException("User not found.");
         }
 
         // update
@@ -47,7 +44,7 @@ public class IncomeServiceImpl implements IncomeService {
             Income income = incomeRepository.findById(reqData.getIncomeId()).orElseThrow(() ->
                     new ResourceNotFoundException("Income not found"));
 
-            if (!income.getUserId().equals(currentUserId)) {
+            if (!income.getUser().getUserId().equals(currentUserId)) {
                 throw new ForbiddenException("You are not authorized to update this income.");
             }
             if (!income.getMonth().equals(reqData.getMonth()) ||
@@ -59,24 +56,26 @@ public class IncomeServiceImpl implements IncomeService {
             income.setSource(reqData.getSource());
 
             incomeRepository.save(income);
-            return "Income updated successfully!";
+            return SuccessResponse.of("Income updated successfully!");
         }
-
         // create
+        User currentUser = userRepository.findById(currentUserId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found"));
+
         Income newIncome = Income.builder()
                 .amount(reqData.getAmount())
                 .source(reqData.getSource())
                 .month(reqData.getMonth())
                 .year(reqData.getYear())
-                .userId(currentUserId)
+                .user(currentUser)
                 .build();
 
         incomeRepository.save(newIncome);
-        return "Income saved successfully!";
+        return SuccessResponse.of("Income saved successfully!");
     }
 
     @Override
-    public ResponseSuccessData getMonthlyDetails(Long currentUserId, Integer reqMonth, Integer reqYear) {
+    public ApiResponse getMonthlyDetails(Long currentUserId, Integer reqMonth, Integer reqYear) {
         List<Income> monthlyList = (reqMonth != null && reqYear != null)
                 ? incomeRepository.findAllByUserIdAndMonthAndYear(currentUserId, reqMonth, reqYear)
                 : new ArrayList<>();
@@ -87,20 +86,20 @@ public class IncomeServiceImpl implements IncomeService {
             detailsList = monthlyList.stream().map(Income::toIncomeDetailsData).toList();
         }
 
-        return new ResponseSuccessData(detailsList, ResponseMessageConstants.DATA_FOUND, HttpStatus.FOUND);
+        return SuccessResponse.of(detailsList, ResponseMessageConstants.DATA_FOUND);
     }
 
     @Override
-    public IncomeDetailsData getIncomeDetails(Long currentUserId, Long incomeId) {
+    public ApiResponse getIncomeDetails(Long currentUserId, Long incomeId) {
 
         Income income = incomeRepository.findById(incomeId).orElseThrow(() ->
                 new ResourceNotFoundException("Income not found"));
 
-        if (!income.getUserId().equals(currentUserId)) {
+        if (!income.getUser().getUserId().equals(currentUserId)) {
             throw new ForbiddenException("You are not authorized to view this income");
         }
 
-        return income.toIncomeDetailsData();
+        return SuccessResponse.of(income.toIncomeDetailsData(), ResponseMessageConstants.DATA_FOUND);
 
     }
 
@@ -118,10 +117,10 @@ public class IncomeServiceImpl implements IncomeService {
         return rows.stream()
                 .map(row -> {
                     IncomeResData summary = IncomeResData.builder()
-                                    .month((Integer) row.get("month"))
-                                    .year((Integer) row.get("year"))
-                                    .totalAmount((BigDecimal) row.get("totalIncome"))
-                                    .build();
+                            .month((Integer) row.get("month"))
+                            .year((Integer) row.get("year"))
+                            .totalAmount((BigDecimal) row.get("totalIncome"))
+                            .build();
 
                     List<Income> monthlyList = incomeRepository.findAllByUserIdAndMonthAndYear(currentUserId,
                             summary.getMonth(), summary.getYear());
@@ -132,21 +131,20 @@ public class IncomeServiceImpl implements IncomeService {
                     }
 
                     return summary;
-                    })
+                })
                 .toList();
     }
 
     @Override
-    public ResponseBaseData deleteIncome(Long currentUserId, Long incomeId) {
+    public ApiResponse deleteIncome(Long currentUserId, Long incomeId) {
         Income income = incomeRepository.findById(incomeId).orElseThrow(
                 () -> new ResourceNotFoundException("Income not found")
         );
-        if (!income.getUserId().equals(currentUserId)) {
+        if (!income.getUser().getUserId().equals(currentUserId)) {
             throw new ForbiddenException("You are not authorized to delete this income");
         }
 
         incomeRepository.delete(income);
-
-        return new ResponseBaseData<>("Income deleted successfully", HttpStatus.OK);
+        return SuccessResponse.of("Income deleted successfully");
     }
 }

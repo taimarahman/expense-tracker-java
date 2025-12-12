@@ -2,6 +2,7 @@ package com.project.expenseTracker.entity;
 
 import com.project.expenseTracker.dto.ExpenseDto;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,11 +36,13 @@ public class Expense {
     @Column(nullable = false)
     private LocalTime time;
 
-    @Column(nullable = false)
-    private Long categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", referencedColumnName = "categoryId", nullable = false)
+    private Category category;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false)
+    private User user;
 
     private String description;
 
@@ -57,8 +60,10 @@ public class Expense {
                 .amount(this.getAmount())
                 .date(this.getDate())
                 .time(this.getTime())
-                .categoryId(this.getCategoryId())
+                .categoryId(this.getCategory() != null ? this.getCategory().getCategoryId() : null)
                 .description(this.getDescription())
                 .build();
     }
+
+
 }

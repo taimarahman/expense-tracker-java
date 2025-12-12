@@ -36,8 +36,9 @@ public class Income {
     @Column(nullable = false)
     private Integer year;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false)
+    private User user;
 
     @CreationTimestamp
     @Column(nullable = false)

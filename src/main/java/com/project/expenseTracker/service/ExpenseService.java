@@ -11,8 +11,6 @@ public interface ExpenseService {
 
     ApiResponse deleteExpense(Long expenseId, Long currentUserId);
 
-    String updateExpense(Expense reqData, Long currentUserId);
-
     List<Expense> getExpenseList(Long currentUserId);
 
     List<ExpenseDto> getMonthlyExpenseList(Long currentUserId, Integer reqMonth, Integer reqYear);
