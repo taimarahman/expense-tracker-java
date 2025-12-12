@@ -1,8 +1,8 @@
 package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
+import com.project.expenseTracker.dto.IncomeDto;
 import com.project.expenseTracker.dto.response.ApiResponse;
-import com.project.expenseTracker.dto.response.IncomeDto;
 import com.project.expenseTracker.dto.response.IncomeResData;
 import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.entity.Income;
@@ -13,8 +13,10 @@ import com.project.expenseTracker.repository.IncomeRepository;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.IncomeService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ public class IncomeServiceImpl implements IncomeService {
     private final UserRepository userRepository;
 
     @Override
-    public ApiResponse saveUpdateMonthlyIncome(com.project.expenseTracker.dto.IncomeDto reqData, HttpSession session) {
+    public ApiResponse saveUpdateMonthlyIncome(@Valid @RequestBody IncomeDto reqData, HttpSession session) {
 
         Long currentUserId = (Long) session.getAttribute("currentUserId");
 
@@ -76,7 +78,7 @@ public class IncomeServiceImpl implements IncomeService {
     @Override
     public ApiResponse getMonthlyDetails(Long currentUserId, Integer reqMonth, Integer reqYear) {
         List<Income> monthlyList = (reqMonth != null && reqYear != null)
-                ? incomeRepository.findAllByUserIdAndMonthAndYear(currentUserId, reqMonth, reqYear)
+                ? incomeRepository.findAllByUser_UserIdAndMonthAndYear(currentUserId, reqMonth, reqYear)
                 : new ArrayList<>();
 
         List<IncomeDto> detailsList = new ArrayList<>();
@@ -121,7 +123,7 @@ public class IncomeServiceImpl implements IncomeService {
                             .totalAmount((BigDecimal) row.get("totalIncome"))
                             .build();
 
-                    List<Income> monthlyList = incomeRepository.findAllByUserIdAndMonthAndYear(currentUserId,
+                    List<Income> monthlyList = incomeRepository.findAllByUser_UserIdAndMonthAndYear(currentUserId,
                             summary.getMonth(), summary.getYear());
                     if (!monthlyList.isEmpty()) {
                         summary.setDetails(monthlyList.stream()

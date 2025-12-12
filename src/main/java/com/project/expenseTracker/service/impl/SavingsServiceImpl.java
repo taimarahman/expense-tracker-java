@@ -83,7 +83,7 @@ public class SavingsServiceImpl implements SavingsService {
     public ApiResponse getSavingsDetails(Long currentUserId, Integer month, Integer year) {
 
         List<Savings> savingsList = (month != null && year != null) ?
-                savingsRepository.findByUserIdAndMonthAndYear(currentUserId, month, year) : new ArrayList<>();
+                savingsRepository.findByUser_UserIdAndMonthAndYear(currentUserId, month, year) : new ArrayList<>();
 
         List<SavingsDto> detailsData = new ArrayList<>();
         if (!savingsList.isEmpty()) {
@@ -119,7 +119,7 @@ public class SavingsServiceImpl implements SavingsService {
                                 .totalAmount((BigDecimal) row.get("totalSavings"))
                                 .build();
 
-                        List<Savings> monthlyList = savingsRepository.findByUserIdAndMonthAndYear(
+                        List<Savings> monthlyList = savingsRepository.findByUser_UserIdAndMonthAndYear(
                                 currentUserId, savings.getMonth(), savings.getYear()
                         );
                         if (!monthlyList.isEmpty()) {

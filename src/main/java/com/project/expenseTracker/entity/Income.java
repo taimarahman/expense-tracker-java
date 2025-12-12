@@ -1,6 +1,6 @@
 package com.project.expenseTracker.entity;
 
-import com.project.expenseTracker.dto.response.IncomeDto;
+import com.project.expenseTracker.dto.IncomeDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -84,7 +84,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ApiResponse getAllCategory(Long currentUserId) {
         List<CategoryResData> allCategories = new ArrayList<>();
-        List<Category> categories = categoryRepository.findAllByUserIdAndParentIdIsNull(currentUserId);
+        List<Category> categories = categoryRepository.findAllByUser_UserIdAndParentIdIsNull(currentUserId);
 
         if (!categories.isEmpty()) {
             allCategories = categories.stream().map(
@@ -122,7 +122,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public ApiResponse getSubcategoryByParent(Long categoryId, Long currentUserId) {
-        Category category = categoryRepository.findByCategoryIdAndUserId(categoryId, currentUserId)
+        Category category = categoryRepository.findByCategoryIdAndUser_UserId(categoryId, currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         List<Category> subcategories = categoryRepository.findByParentId(category.getCategoryId());

@@ -12,15 +12,13 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByParentId(Long categoryId);
-    List<Category> findByParentIdAndCreatedByIn(Long parentId, Collection<Long> createdBy);
 
-
-    List<Category> findAllByUserIdAndParentIdIsNull(Long userId);
+    List<Category> findAllByUser_UserIdAndParentIdIsNull(Long userId);
 
     @Query("SELECT c FROM Category c WHERE " +
             "c.parentId IS NULL AND " +
-            "c.userId = :userId")
+            "c.user.userId = :userId")
     List<Category> findAllCategoryByUserId(Long userId);
 
-    Optional<Category> findByCategoryIdAndUserId(Long categoryId, Long userId);
+    Optional<Category> findByCategoryIdAndUser_UserId(Long categoryId, Long userId);
 }

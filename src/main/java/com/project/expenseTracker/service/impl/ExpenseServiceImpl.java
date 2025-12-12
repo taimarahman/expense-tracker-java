@@ -87,14 +87,14 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public List<Expense> getExpenseList(Long currentUserId) {
-        return expenseRepository.findAllByUserId(currentUserId);
+        return expenseRepository.findAllByUser_UserId(currentUserId);
     }
 
     @Override
     public List<ExpenseDto> getMonthlyExpenseList(Long currentUserId, Integer month, Integer year) {
 
         List<Expense> expenseList = (month != null && year != null)
-                ? expenseRepository.findAllByUserIdAndMonth(currentUserId, month, year)
+                ? expenseRepository.findAllByUser_UserIdAndMonth(currentUserId, month, year)
                 : List.of();
 
         return expenseList.stream().map(Expense::toExpenseDto).toList();
