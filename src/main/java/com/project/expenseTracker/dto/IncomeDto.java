@@ -1,4 +1,4 @@
-package com.project.expenseTracker.dto.request;
+package com.project.expenseTracker.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class IncomeReqData {
+public class IncomeDto {
 
     private Long incomeId;
 

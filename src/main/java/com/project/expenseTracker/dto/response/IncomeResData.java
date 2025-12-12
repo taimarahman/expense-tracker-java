@@ -1,5 +1,6 @@
 package com.project.expenseTracker.dto.response;
 
+import com.project.expenseTracker.dto.IncomeDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,6 @@ public class IncomeResData {
     private Integer month;
     private Integer year;
     private BigDecimal totalAmount;
-    private List<IncomeDetailsData> details;
+    private List<IncomeDto> details;
 
 }

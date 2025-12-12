@@ -1,9 +1,8 @@
 package com.project.expenseTracker.service.impl;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
-import com.project.expenseTracker.dto.request.IncomeReqData;
 import com.project.expenseTracker.dto.response.ApiResponse;
-import com.project.expenseTracker.dto.response.IncomeDetailsData;
+import com.project.expenseTracker.dto.response.IncomeDto;
 import com.project.expenseTracker.dto.response.IncomeResData;
 import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.entity.Income;
@@ -31,7 +30,7 @@ public class IncomeServiceImpl implements IncomeService {
     private final UserRepository userRepository;
 
     @Override
-    public ApiResponse saveUpdateMonthlyIncome(IncomeReqData reqData, HttpSession session) {
+    public ApiResponse saveUpdateMonthlyIncome(com.project.expenseTracker.dto.IncomeDto reqData, HttpSession session) {
 
         Long currentUserId = (Long) session.getAttribute("currentUserId");
 
@@ -80,10 +79,10 @@ public class IncomeServiceImpl implements IncomeService {
                 ? incomeRepository.findAllByUserIdAndMonthAndYear(currentUserId, reqMonth, reqYear)
                 : new ArrayList<>();
 
-        List<IncomeDetailsData> detailsList = new ArrayList<>();
+        List<IncomeDto> detailsList = new ArrayList<>();
 
         if (!monthlyList.isEmpty()) {
-            detailsList = monthlyList.stream().map(Income::toIncomeDetailsData).toList();
+            detailsList = monthlyList.stream().map(Income::toIncomeDto).toList();
         }
 
         return SuccessResponse.of(detailsList, ResponseMessageConstants.DATA_FOUND);
@@ -99,7 +98,7 @@ public class IncomeServiceImpl implements IncomeService {
             throw new ForbiddenException("You are not authorized to view this income");
         }
 
-        return SuccessResponse.of(income.toIncomeDetailsData(), ResponseMessageConstants.DATA_FOUND);
+        return SuccessResponse.of(income.toIncomeDto(), ResponseMessageConstants.DATA_FOUND);
 
     }
 
@@ -126,7 +125,7 @@ public class IncomeServiceImpl implements IncomeService {
                             summary.getMonth(), summary.getYear());
                     if (!monthlyList.isEmpty()) {
                         summary.setDetails(monthlyList.stream()
-                                .map(Income::toIncomeDetailsData)
+                                .map(Income::toIncomeDto)
                                 .toList());
                     }
 

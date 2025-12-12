@@ -2,19 +2,15 @@ package com.project.expenseTracker.controller;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
-import com.project.expenseTracker.dto.request.IncomeReqData;
+import com.project.expenseTracker.dto.IncomeDto;
 import com.project.expenseTracker.dto.response.*;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.service.IncomeService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +28,7 @@ public class IncomeController {
     }
 
     @PostMapping(produces = "application/json")
-    public ResponseEntity<ApiResponse> saveUpdateIncome(@Valid @RequestBody IncomeReqData reqData, HttpSession session) {
+    public ResponseEntity<ApiResponse> saveUpdateIncome(@Valid @RequestBody IncomeDto reqData, HttpSession session) {
 
         return ResponseEntity.ok(incomeService.saveUpdateMonthlyIncome(reqData, session));
     }
