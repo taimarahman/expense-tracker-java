@@ -1,4 +1,4 @@
-package com.project.expenseTracker.dto.request;
+package com.project.expenseTracker.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -6,7 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class UserInfoReqData {
+@Builder
+public class UserInfoDto {
 
     @NotBlank(message = "Username can not be empty.")
     private String username;
@@ -20,5 +21,9 @@ public class UserInfoReqData {
     private String firstName;
     private String lastName;
     private String profession;
-    private String activeYn;
+    private Boolean isActive;
+
+    // for response only
+    private String address;
+    private String profileImageUrl;
 }

@@ -2,21 +2,18 @@ package com.project.expenseTracker.controller;
 
 import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
-import com.project.expenseTracker.dto.request.UserInfoReqData;
+import com.project.expenseTracker.dto.UserInfoDto;
 import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.SuccessResponse;
-import com.project.expenseTracker.dto.response.UserInfoResData;
-import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.entity.User;
+import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +26,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping(WebAPIUrlConstants.USER_REGISTER_API)
-    public ResponseEntity<ApiResponse> register(@Valid @RequestBody UserInfoReqData user) {
+    public ResponseEntity<ApiResponse> register(@Valid @RequestBody UserInfoDto user) {
         return ResponseEntity.ok(userService.register(user));
     }
 
@@ -62,8 +59,8 @@ public class UserController {
         if (!session.getAttribute("currentUser").equals(username)) {
             throw new ForbiddenException(ResponseMessageConstants.UNAUTHORIZED_USER);
         }
-        UserInfoResData userInfo = userService.getUserProfileInfo(username);
         return ResponseEntity.ok(
-                SuccessResponse.of(userInfo, ResponseMessageConstants.DATA_FOUND, HttpStatus.OK));
+                SuccessResponse.of(userService.getUserProfileInfo(username),
+                        ResponseMessageConstants.DATA_FOUND));
     }
 }

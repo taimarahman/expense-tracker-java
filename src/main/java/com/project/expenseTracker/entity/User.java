@@ -37,7 +37,7 @@ public class User {
     private UserProfileInfo userProfileInfo;
 
     @Column(nullable = false)
-    private String activeYn;
+    private Boolean isActive;
 
     @CreationTimestamp
     @Column(nullable = false)

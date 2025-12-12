@@ -1,16 +1,15 @@
 package com.project.expenseTracker.service.impl;
 
-import com.project.expenseTracker.dto.request.UserInfoReqData;
+import com.project.expenseTracker.dto.UserInfoDto;
 import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.SuccessResponse;
-import com.project.expenseTracker.dto.response.UserInfoResData;
+import com.project.expenseTracker.entity.User;
+import com.project.expenseTracker.entity.UserProfileInfo;
 import com.project.expenseTracker.exception.EmailAlreadyExistsException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.exception.UsernameAlreadyExistException;
-import com.project.expenseTracker.entity.User;
-import com.project.expenseTracker.entity.UserProfileInfo;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.UserService;
 import jakarta.transaction.Transactional;
@@ -39,7 +38,7 @@ public class UserServiceImpl implements UserService {
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp");
 
     @Override
-    public ApiResponse register(UserInfoReqData user) {
+    public ApiResponse register(UserInfoDto user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new UsernameAlreadyExistException("Username already exists");
         }
@@ -60,7 +59,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .password(encryptedPass)
                 .userProfileInfo(newUserProfile)
-                .activeYn("Y")
+                .isActive(true)
                 .build();
 
         userRepository.save(newUser);
@@ -77,11 +76,6 @@ public class UserServiceImpl implements UserService {
         }
 
         return foundUser;
-    }
-
-    @Override
-    public Long findIdByUsername(String username) {
-        return userRepository.findIdByUsername(username);
     }
 
     @Override
@@ -129,7 +123,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoResData getUserProfileInfo(String username) {
+    public UserInfoDto getUserProfileInfo(String username) {
         User foundUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
@@ -138,7 +132,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("User profile information not found");
         }
 
-        return UserInfoResData.builder()
+        return UserInfoDto.builder()
                 .username(foundUser.getUsername())
                 .email(foundUser.getEmail())
                 .firstName(foundUserProfile.getFirstName())
