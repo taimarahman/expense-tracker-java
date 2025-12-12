@@ -4,7 +4,7 @@ import com.project.expenseTracker.dto.CategoryDto;
 import com.project.expenseTracker.dto.response.*;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
-import com.project.expenseTracker.model.Category;
+import com.project.expenseTracker.entity.Category;
 import com.project.expenseTracker.repository.CategoryRepository;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.CategoryService;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

@@ -1,6 +1,6 @@
-package com.project.expenseTracker.model;
+package com.project.expenseTracker.entity;
 
-import com.project.expenseTracker.dto.response.SavingsDetailsData;
+import com.project.expenseTracker.dto.response.IncomeDetailsData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,19 +17,20 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Savings {
+@Table(name = "incomes")
+public class Income {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long savingsId;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private BigDecimal amount;
+    private Long incomeId;
 
     @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    @Column(nullable = false)
+    private String source;
+
+    @Column(nullable = false)
     private Integer month;
 
     @Column(nullable = false)
@@ -45,13 +46,13 @@ public class Savings {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public SavingsDetailsData toSavingsDetailsData() {
-        return SavingsDetailsData.builder()
-                .savingsId(this.getSavingsId())
+    public IncomeDetailsData toIncomeDetailsData(){
+        return IncomeDetailsData.builder()
+                .incomeId(this.getIncomeId())
                 .amount(this.getAmount())
-                .title(this.getTitle())
-                .month(this.getMonth())
-                .year(this.getYear())
+                .source(this.getSource())
+                .month(month)
+                .year(year)
                 .build();
     }
 }

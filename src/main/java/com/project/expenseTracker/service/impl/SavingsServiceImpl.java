@@ -8,12 +8,11 @@ import com.project.expenseTracker.dto.response.SavingsDetailsData;
 import com.project.expenseTracker.dto.response.SavingsResData;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
-import com.project.expenseTracker.model.Savings;
+import com.project.expenseTracker.entity.Savings;
 import com.project.expenseTracker.repository.SavingsRepository;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.SavingsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 

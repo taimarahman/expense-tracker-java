@@ -2,7 +2,7 @@ package com.project.expenseTracker.service;
 
 import com.project.expenseTracker.dto.ExpenseDto;
 import com.project.expenseTracker.dto.response.ApiResponse;
-import com.project.expenseTracker.model.Expense;
+import com.project.expenseTracker.entity.Expense;
 
 import java.util.List;
 

@@ -9,7 +9,7 @@ import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.dto.response.UserInfoResData;
 import com.project.expenseTracker.exception.ForbiddenException;
-import com.project.expenseTracker.model.User;
+import com.project.expenseTracker.entity.User;
 import com.project.expenseTracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;

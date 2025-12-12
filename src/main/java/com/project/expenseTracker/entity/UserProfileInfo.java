@@ -1,4 +1,4 @@
-package com.project.expenseTracker.model;
+package com.project.expenseTracker.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

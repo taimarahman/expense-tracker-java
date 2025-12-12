@@ -4,19 +4,16 @@ import com.project.expenseTracker.constants.ResponseMessageConstants;
 import com.project.expenseTracker.constants.WebAPIUrlConstants;
 import com.project.expenseTracker.dto.ExpenseDto;
 import com.project.expenseTracker.dto.response.ApiResponse;
-import com.project.expenseTracker.dto.response.ResponseHandler;
 import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.exception.ForbiddenException;
-import com.project.expenseTracker.model.Expense;
+import com.project.expenseTracker.entity.Expense;
 import com.project.expenseTracker.service.ExpenseService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
