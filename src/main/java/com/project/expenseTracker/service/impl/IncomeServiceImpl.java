@@ -43,20 +43,20 @@ public class IncomeServiceImpl implements IncomeService {
         }
 
         // update
-        if (reqData.getIncomeId() != null) {
-            Income income = incomeRepository.findById(reqData.getIncomeId()).orElseThrow(() ->
+        if (reqData.incomeId() != null) {
+            Income income = incomeRepository.findById(reqData.incomeId()).orElseThrow(() ->
                     new ResourceNotFoundException("Income not found"));
 
             if (!income.getUser().getUserId().equals(currentUserId)) {
                 throw new ForbiddenException("You are not authorized to update this income.");
             }
-            if (!income.getMonth().equals(reqData.getMonth()) ||
-                    !income.getYear().equals(reqData.getYear())) {
+            if (!income.getMonth().equals(reqData.month()) ||
+                    !income.getYear().equals(reqData.year())) {
                 throw new ForbiddenException("Month or year cannot be changed.");
             }
 
-            income.setAmount(reqData.getAmount());
-            income.setSource(reqData.getSource());
+            income.setAmount(reqData.amount());
+            income.setSource(reqData.source());
 
             incomeRepository.save(income);
             return SuccessResponse.of("Income updated successfully!");

@@ -30,18 +30,18 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ApiResponse saveUpdateCategory(CategoryDto reqData, Long currentUserId) {
         // update
-        if (reqData.getCategoryId() != null) {
-            Category category = categoryRepository.findById(reqData.getCategoryId()).orElseThrow(
+        if (reqData.categoryId() != null) {
+            Category category = categoryRepository.findById(reqData.categoryId()).orElseThrow(
                     () -> new ResourceNotFoundException("Category not found"));
 
-            if (!category.getKey().equals(reqData.getKey())) {
+            if (!category.getKey().equals(reqData.key())) {
                 throw new ForbiddenException("Category key cannot be changed.");
             }
 
-            category.setName(reqData.getName());
-            category.setDescription(reqData.getDescription());
-            category.setParentId(reqData.getParentId());
-            category.setIsActive(reqData.getIsActive());
+            category.setName(reqData.name());
+            category.setDescription(reqData.description());
+            category.setParentId(reqData.parentId());
+            category.setIsActive(reqData.isActive());
             category.setUpdatedBy(currentUserId);
             categoryRepository.save(category);
 

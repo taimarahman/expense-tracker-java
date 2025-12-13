@@ -33,20 +33,20 @@ public class SavingsServiceImpl implements SavingsService {
     @Override
     public ApiResponse saveUpdateSavings(SavingsDto reqData, Long currentUserId) {
 
-        if (reqData.getSavingsId() != null) {
-            Savings savings = savingsRepository.findById(reqData.getSavingsId()).orElseThrow(
+        if (reqData.savingsId() != null) {
+            Savings savings = savingsRepository.findById(reqData.savingsId()).orElseThrow(
                     () -> new ResourceNotFoundException("Savings not found"));
 
             if (!savings.getUser().getUserId().equals(currentUserId)) {
                 throw new ForbiddenException("You are not authorized to update this savings");
             }
 
-            if (!savings.getMonth().equals(reqData.getMonth()) || !savings.getYear().equals(reqData.getYear())) {
+            if (!savings.getMonth().equals(reqData.month()) || !savings.getYear().equals(reqData.year())) {
                 throw new ForbiddenException("Month or year cannot be changed.");
             }
 
-            savings.setAmount(reqData.getAmount());
-            savings.setTitle(reqData.getTitle());
+            savings.setAmount(reqData.amount());
+            savings.setTitle(reqData.title());
             savingsRepository.save(savings);
 
             return SuccessResponse.of("Savings updated successfully!");

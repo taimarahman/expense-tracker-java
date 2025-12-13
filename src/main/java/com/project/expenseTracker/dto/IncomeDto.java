@@ -4,31 +4,24 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class IncomeDto {
 
-    private Long incomeId;
+public record IncomeDto(
 
-    @NotNull(message = "Amount is required.")
-    private BigDecimal amount;
+        Long incomeId,
 
-    @NotBlank(message = "Income source is required.")
-    private String source;
+        @NotNull(message = "Amount is required.")
+        BigDecimal amount,
 
-    @NotNull(message = "Month is required.")
-    @Min(1) @Max(12)
-    private Integer month;
+        @NotBlank(message = "Income source is required.")
+        String source,
 
-    @NotNull(message = "Year is required.")
-    private Integer year;
-}
+        @NotNull(message = "Month is required.")
+        @Min(1) @Max(12)
+        Integer month,
+
+        @NotNull(message = "Year is required.")
+        Integer year
+) {}

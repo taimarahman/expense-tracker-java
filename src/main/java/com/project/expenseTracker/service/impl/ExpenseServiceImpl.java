@@ -35,12 +35,12 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new ResourceNotFoundException("User not found.");
         }
 
-        Category category = categoryRepository.findById(reqData.getCategoryId()).orElseThrow(
+        Category category = categoryRepository.findById(reqData.categoryId()).orElseThrow(
                 () -> new ResourceNotFoundException("Category not found"));
 
         // update
-        if (reqData.getExpenseId() != null) {
-            Expense expense = expenseRepository.findById(reqData.getExpenseId()).orElseThrow(
+        if (reqData.expenseId() != null) {
+            Expense expense = expenseRepository.findById(reqData.expenseId()).orElseThrow(
                     () -> new ResourceNotFoundException("Expense not found")
             );
 
@@ -48,11 +48,11 @@ public class ExpenseServiceImpl implements ExpenseService {
                 throw new ForbiddenException("You are not authorized to update this expense.");
             }
 
-            expense.setAmount(reqData.getAmount());
+            expense.setAmount(reqData.amount());
             expense.setCategory(category); 
-            expense.setDate(reqData.getDate());
-            expense.setTime(reqData.getTime());
-            expense.setDescription(reqData.getDescription());
+            expense.setDate(reqData.date());
+            expense.setTime(reqData.time());
+            expense.setDescription(reqData.description());
             expenseRepository.save(expense);
 
             return SuccessResponse.of("Expense updated successfully!");
@@ -63,14 +63,6 @@ public class ExpenseServiceImpl implements ExpenseService {
         Expense expense = expenseMapper.mapToEntity(reqData);
         expense.setUser(user);
         expense.setCategory(category);
-//                Expense.builder()
-//                .amount(reqData.getAmount())
-//                .category(category)
-//                .date(reqData.getDate())
-//                .time(reqData.getTime())
-//                .description(reqData.getDescription())
-//                .user(user)
-//                .build();
 
         expenseRepository.save(expense);
         return SuccessResponse.of("Expense saved successfully!", HttpStatus.CREATED);
