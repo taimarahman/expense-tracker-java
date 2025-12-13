@@ -45,14 +45,4 @@ public class Savings {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    public SavingsDto toSavingsDto() {
-        return SavingsDto.builder()
-                .savingsId(this.getSavingsId())
-                .amount(this.getAmount())
-                .title(this.getTitle())
-                .month(this.getMonth())
-                .year(this.getYear())
-                .build();
-    }
 }

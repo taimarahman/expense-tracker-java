@@ -9,6 +9,7 @@ import com.project.expenseTracker.entity.Savings;
 import com.project.expenseTracker.entity.User;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
+import com.project.expenseTracker.mapper.SavingsMapper;
 import com.project.expenseTracker.repository.SavingsRepository;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.SavingsService;
@@ -27,6 +28,7 @@ public class SavingsServiceImpl implements SavingsService {
 
     private final SavingsRepository savingsRepository;
     private final UserRepository userRepository;
+    private final SavingsMapper savingsMapper;
 
     @Override
     public ApiResponse saveUpdateSavings(SavingsDto reqData, Long currentUserId) {
@@ -53,13 +55,8 @@ public class SavingsServiceImpl implements SavingsService {
         User currentUser = userRepository.findById(currentUserId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found"));
 
-        Savings savings = Savings.builder()
-                .amount(reqData.getAmount())
-                .title(reqData.getTitle())
-                .month(reqData.getMonth())
-                .year(reqData.getYear())
-                .user(currentUser)
-                .build();
+        Savings savings = savingsMapper.mapToEntity(reqData);
+        savings.setUser(currentUser);
 
         savingsRepository.save(savings);
 
@@ -76,7 +73,7 @@ public class SavingsServiceImpl implements SavingsService {
             throw new ForbiddenException("You are not authorized to view this income");
         }
 
-        return SuccessResponse.of(savings.toSavingsDto(), "Savings found successfully!");
+        return SuccessResponse.of(savingsMapper.mapToDto(savings), "Savings found successfully!");
     }
 
     @Override
@@ -85,13 +82,9 @@ public class SavingsServiceImpl implements SavingsService {
         List<Savings> savingsList = (month != null && year != null) ?
                 savingsRepository.findByUser_UserIdAndMonthAndYear(currentUserId, month, year) : new ArrayList<>();
 
-        List<SavingsDto> detailsData = new ArrayList<>();
-        if (!savingsList.isEmpty()) {
-            detailsData = savingsList.stream().map(Savings::toSavingsDto).toList();
-        }
-
-        return SuccessResponse.of(detailsData, ResponseMessageConstants.DATA_FOUND);
-
+        return SuccessResponse.of(
+                savingsMapper.mapToDtoList(savingsList),
+                ResponseMessageConstants.DATA_FOUND);
     }
 
     @Override
@@ -122,15 +115,10 @@ public class SavingsServiceImpl implements SavingsService {
                         List<Savings> monthlyList = savingsRepository.findByUser_UserIdAndMonthAndYear(
                                 currentUserId, savings.getMonth(), savings.getYear()
                         );
-                        if (!monthlyList.isEmpty()) {
-                            savings.setDetails(monthlyList.stream()
-                                    .map(Savings::toSavingsDto)
-                                    .toList());
-                        }
+                        savings.setDetails(savingsMapper.mapToDtoList(monthlyList));
 
                         return savings;
                     }).toList();
-
         }
 
         return SuccessResponse.of(savingsList, ResponseMessageConstants.DATA_FOUND);

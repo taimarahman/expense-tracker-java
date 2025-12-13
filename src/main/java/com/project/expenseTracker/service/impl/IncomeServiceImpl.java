@@ -9,6 +9,7 @@ import com.project.expenseTracker.entity.Income;
 import com.project.expenseTracker.entity.User;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
+import com.project.expenseTracker.mapper.IncomeMapper;
 import com.project.expenseTracker.repository.IncomeRepository;
 import com.project.expenseTracker.repository.UserRepository;
 import com.project.expenseTracker.service.IncomeService;
@@ -30,6 +31,7 @@ public class IncomeServiceImpl implements IncomeService {
 
     private final IncomeRepository incomeRepository;
     private final UserRepository userRepository;
+    private final IncomeMapper incomeMapper;
 
     @Override
     public ApiResponse saveUpdateMonthlyIncome(@Valid @RequestBody IncomeDto reqData, HttpSession session) {
@@ -63,13 +65,8 @@ public class IncomeServiceImpl implements IncomeService {
         User currentUser = userRepository.findById(currentUserId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found"));
 
-        Income newIncome = Income.builder()
-                .amount(reqData.getAmount())
-                .source(reqData.getSource())
-                .month(reqData.getMonth())
-                .year(reqData.getYear())
-                .user(currentUser)
-                .build();
+        Income newIncome = incomeMapper.mapToEntity(reqData);
+        newIncome.setUser(currentUser);
 
         incomeRepository.save(newIncome);
         return SuccessResponse.of("Income saved successfully!");
@@ -81,13 +78,7 @@ public class IncomeServiceImpl implements IncomeService {
                 ? incomeRepository.findAllByUser_UserIdAndMonthAndYear(currentUserId, reqMonth, reqYear)
                 : new ArrayList<>();
 
-        List<IncomeDto> detailsList = new ArrayList<>();
-
-        if (!monthlyList.isEmpty()) {
-            detailsList = monthlyList.stream().map(Income::toIncomeDto).toList();
-        }
-
-        return SuccessResponse.of(detailsList, ResponseMessageConstants.DATA_FOUND);
+        return SuccessResponse.of(incomeMapper.mapToDtoList(monthlyList), ResponseMessageConstants.DATA_FOUND);
     }
 
     @Override
@@ -100,7 +91,7 @@ public class IncomeServiceImpl implements IncomeService {
             throw new ForbiddenException("You are not authorized to view this income");
         }
 
-        return SuccessResponse.of(income.toIncomeDto(), ResponseMessageConstants.DATA_FOUND);
+        return SuccessResponse.of(incomeMapper.mapToDto(income), ResponseMessageConstants.DATA_FOUND);
 
     }
 
@@ -125,11 +116,7 @@ public class IncomeServiceImpl implements IncomeService {
 
                     List<Income> monthlyList = incomeRepository.findAllByUser_UserIdAndMonthAndYear(currentUserId,
                             summary.getMonth(), summary.getYear());
-                    if (!monthlyList.isEmpty()) {
-                        summary.setDetails(monthlyList.stream()
-                                .map(Income::toIncomeDto)
-                                .toList());
-                    }
+                    summary.setDetails(incomeMapper.mapToDtoList(monthlyList));
 
                     return summary;
                 })

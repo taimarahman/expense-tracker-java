@@ -46,14 +46,4 @@ public class Income {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    public IncomeDto toIncomeDto(){
-        return IncomeDto.builder()
-                .incomeId(this.getIncomeId())
-                .amount(this.getAmount())
-                .source(this.getSource())
-                .month(month)
-                .year(year)
-                .build();
-    }
 }
