@@ -9,6 +9,7 @@ import com.project.expenseTracker.entity.Expense;
 import com.project.expenseTracker.entity.User;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
+import com.project.expenseTracker.mapper.ExpenseMapper;
 import com.project.expenseTracker.repository.CategoryRepository;
 import com.project.expenseTracker.repository.ExpenseRepository;
 import com.project.expenseTracker.repository.UserRepository;
@@ -26,6 +27,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final ExpenseMapper expenseMapper;
 
     @Override
     public ApiResponse saveUpdateExpense(ExpenseDto reqData, Long currentUserId) {
@@ -47,7 +49,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             }
 
             expense.setAmount(reqData.getAmount());
-            expense.setCategory(category);
+            expense.setCategory(category); 
             expense.setDate(reqData.getDate());
             expense.setTime(reqData.getTime());
             expense.setDescription(reqData.getDescription());
@@ -58,14 +60,17 @@ public class ExpenseServiceImpl implements ExpenseService {
         User user = userRepository.findById(currentUserId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found"));
 
-        Expense expense = Expense.builder()
-                .amount(reqData.getAmount())
-                .category(category)
-                .date(reqData.getDate())
-                .time(reqData.getTime())
-                .description(reqData.getDescription())
-                .user(user)
-                .build();
+        Expense expense = expenseMapper.mapToEntity(reqData);
+        expense.setUser(user);
+        expense.setCategory(category);
+//                Expense.builder()
+//                .amount(reqData.getAmount())
+//                .category(category)
+//                .date(reqData.getDate())
+//                .time(reqData.getTime())
+//                .description(reqData.getDescription())
+//                .user(user)
+//                .build();
 
         expenseRepository.save(expense);
         return SuccessResponse.of("Expense saved successfully!", HttpStatus.CREATED);
@@ -97,8 +102,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 ? expenseRepository.findAllByUser_UserIdAndMonth(currentUserId, month, year)
                 : List.of();
 
-        return expenseList.stream().map(Expense::toExpenseDto).toList();
-
+        return expenseMapper.mapToDtoList(expenseList);
     }
 
     @Override
@@ -110,6 +114,6 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new ForbiddenException("You are not authorized to view this expense.");
         }
 
-        return SuccessResponse.of(expense.toExpenseDto(), ResponseMessageConstants.DATA_FOUND);
+        return SuccessResponse.of(expenseMapper.mapToDto(expense), ResponseMessageConstants.DATA_FOUND);
     }
 }

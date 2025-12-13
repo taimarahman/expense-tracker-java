@@ -53,17 +53,4 @@ public class Expense {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-
-    public ExpenseDto toExpenseDto(){
-        return ExpenseDto.builder()
-                .expenseId(this.getExpenseId())
-                .amount(this.getAmount())
-                .date(this.getDate())
-                .time(this.getTime())
-                .categoryId(this.getCategory() != null ? this.getCategory().getCategoryId() : null)
-                .description(this.getDescription())
-                .build();
-    }
-
-
 }
