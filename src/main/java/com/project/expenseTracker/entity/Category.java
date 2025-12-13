@@ -59,17 +59,4 @@ public class Category {
     @Column(nullable = false)
     private Boolean isActive;
 
-
-    public CategoryDto toCategoryDto(){
-        return CategoryDto.builder()
-                .categoryId(this.getCategoryId())
-                .key(this.getKey())
-                .name(this.getName())
-                .description(this.getDescription())
-                .icon(this.getIcon())
-                .parentId(this.getParentId())
-                .isActive(this.getIsActive())
-                .build();
-    }
-
 }
