@@ -28,8 +28,8 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> saveUpdateCategory(@RequestBody @Valid CategoryDto categoryReqData, HttpSession session) {
-        return ResponseEntity.ok(categoryService.saveUpdateCategory(categoryReqData, getCurrentUserId(session)));
+    public ResponseEntity<ApiResponse> saveUpdateCategory(@Valid @RequestBody CategoryDto reqData, HttpSession session) {
+        return ResponseEntity.ok(categoryService.saveUpdateCategory(reqData, getCurrentUserId(session)));
     }
 
     @GetMapping(value = WebAPIUrlConstants.CATEGORY_ID_WISE_DETAILS_API, produces = "application/json")
