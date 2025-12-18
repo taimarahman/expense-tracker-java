@@ -7,7 +7,7 @@ import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.SuccessResponse;
-import com.project.expenseTracker.entity.User;
+import com.project.expenseTracker.entity.Users;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +32,7 @@ public class UserController {
 
     @PostMapping(value = WebAPIUrlConstants.USER_LOGIN_API, produces = "application/json")
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody UserLoginReqData reqData, HttpServletRequest req) {
-        User loggedUser = userService.authenticateLogin(reqData);
+        Users loggedUser = userService.authenticateLogin(reqData);
 
         HttpSession session = req.getSession(true);
         session.setAttribute("currentUserId", loggedUser.getUserId());

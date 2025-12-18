@@ -6,7 +6,7 @@ import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.SavingsResData;
 import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.entity.Savings;
-import com.project.expenseTracker.entity.User;
+import com.project.expenseTracker.entity.Users;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.mapper.SavingsMapper;
@@ -52,7 +52,7 @@ public class SavingsServiceImpl implements SavingsService {
             return SuccessResponse.of("Savings updated successfully!");
         }
         // create
-        User currentUser = userRepository.findById(currentUserId).orElseThrow(
+        Users currentUser = userRepository.findById(currentUserId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found"));
 
         Savings savings = savingsMapper.mapToEntity(reqData);

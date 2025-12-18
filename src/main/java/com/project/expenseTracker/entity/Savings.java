@@ -1,6 +1,5 @@
 package com.project.expenseTracker.entity;
 
-import com.project.expenseTracker.dto.SavingsDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +36,7 @@ public class Savings {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false)
-    private User user;
+    private Users user;
 
     @CreationTimestamp
     @Column(nullable = false)

@@ -6,7 +6,7 @@ import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.IncomeResData;
 import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.entity.Income;
-import com.project.expenseTracker.entity.User;
+import com.project.expenseTracker.entity.Users;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.mapper.IncomeMapper;
@@ -62,7 +62,7 @@ public class IncomeServiceImpl implements IncomeService {
             return SuccessResponse.of("Income updated successfully!");
         }
         // create
-        User currentUser = userRepository.findById(currentUserId).orElseThrow(
+        Users currentUser = userRepository.findById(currentUserId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found"));
 
         Income newIncome = incomeMapper.mapToEntity(reqData);

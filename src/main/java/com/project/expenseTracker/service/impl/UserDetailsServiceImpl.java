@@ -1,6 +1,6 @@
 package com.project.expenseTracker.service.impl;
 
-import com.project.expenseTracker.entity.User;
+import com.project.expenseTracker.entity.Users;
 import com.project.expenseTracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +16,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        Users user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found: " + username));
         if (user == null) {
             throw new UsernameNotFoundException("User with username: " + username + " not found");
         }

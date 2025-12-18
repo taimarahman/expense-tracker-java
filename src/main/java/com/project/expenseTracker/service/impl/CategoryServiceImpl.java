@@ -5,7 +5,7 @@ import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.CategoryResData;
 import com.project.expenseTracker.dto.response.SuccessResponse;
 import com.project.expenseTracker.entity.Category;
-import com.project.expenseTracker.entity.User;
+import com.project.expenseTracker.entity.Users;
 import com.project.expenseTracker.exception.ForbiddenException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
 import com.project.expenseTracker.mapper.CategoryMapper;
@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
             return SuccessResponse.of("Category updated successfully!");
         }
 
-        User user = userRepository.findById(currentUserId).orElseThrow(
+        Users user = userRepository.findById(currentUserId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found"));
 
         Category category = categoryMapper.mapToEntity(reqData);

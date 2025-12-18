@@ -1,8 +1,6 @@
 package com.project.expenseTracker.entity;
 
-import com.project.expenseTracker.dto.ExpenseDto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,7 +40,7 @@ public class Expense {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false)
-    private User user;
+    private Users user;
 
     private String description;
 

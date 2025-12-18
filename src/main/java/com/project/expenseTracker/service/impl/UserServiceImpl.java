@@ -5,7 +5,7 @@ import com.project.expenseTracker.dto.request.UserLoginReqData;
 import com.project.expenseTracker.dto.request.UserProfileReqData;
 import com.project.expenseTracker.dto.response.ApiResponse;
 import com.project.expenseTracker.dto.response.SuccessResponse;
-import com.project.expenseTracker.entity.User;
+import com.project.expenseTracker.entity.Users;
 import com.project.expenseTracker.entity.UserProfileInfo;
 import com.project.expenseTracker.exception.EmailAlreadyExistsException;
 import com.project.expenseTracker.exception.ResourceNotFoundException;
@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
                 .profession(user.getProfession())
                 .build();
 
-        User newUser = User.builder()
+        Users newUser = Users.builder()
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .password(encryptedPass)
@@ -68,8 +68,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User authenticateLogin(UserLoginReqData reqData) {
-        User foundUser = userRepository.findByUsername(reqData.getUsername())
+    public Users authenticateLogin(UserLoginReqData reqData) {
+        Users foundUser = userRepository.findByUsername(reqData.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid username or password"));
         if (!passwordEncoder.matches(reqData.getPassword(), foundUser.getPassword())) {
             throw new ResourceNotFoundException("Invalid username or password");
@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public ApiResponse updateUserProfile(String username, UserProfileReqData reqData) throws IOException {
-        User user = userRepository.findByUsername(username)
+        Users user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
         UserProfileInfo userProfile = user.getUserProfileInfo();
@@ -124,7 +124,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfoDto getUserProfileInfo(String username) {
-        User foundUser = userRepository.findByUsername(username)
+        Users foundUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
         UserProfileInfo foundUserProfile = foundUser.getUserProfileInfo();

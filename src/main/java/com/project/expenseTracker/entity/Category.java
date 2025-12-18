@@ -1,7 +1,6 @@
 package com.project.expenseTracker.entity;
 
 
-import com.project.expenseTracker.dto.CategoryDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +41,7 @@ public class Category {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false)
-    private User user;
+    private Users user;
 
     @Column(nullable = false)
     private Long createdBy;
